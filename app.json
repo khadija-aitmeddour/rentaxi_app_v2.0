@@ -1,7 +1,16 @@
 {
   "expo": {
     "name": "rentaxi_app_v2.0",
-    "slug": "rentaxi_app_v2.0",
+    "slug": "rentaxi_app_v2",
+    "plugins": [
+      [
+        "@rnmapbox/maps",
+        {
+          "RNMapboxMapsImpl": "mapbox",
+          "RNMapboxMapsDownloadToken": "sk.eyJ1Ijoia2FkYWl0bSIsImEiOiJjbHZnOWtjNjEwY25xMmtxbTU1cmJyaG8yIn0.3QhvcYnTXEtDhvRZJyD_Ig"
+        }
+      ]
+    ],
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
