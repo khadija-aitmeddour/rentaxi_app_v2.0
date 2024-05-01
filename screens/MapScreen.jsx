@@ -1,19 +1,16 @@
 import { View, Text } from 'react-native'
 import React, { useEffect, useState} from 'react'
 import MapboxGL from '@rnmapbox/maps'
+import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 
+
+MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MapScreen = ({route}) => {
   
-  
   const {positionCoords, destinationCoords, myRoute} = route.params;
-  const [destinationPointer, setDestinationPointer] = useState(destinationCoords);
-  
-  const handleMapPress = (event) => {
-    setDestinationPointer(event.geometry.coordinates);
-};
+
   const distance = myRoute ? parseFloat( myRoute.distance / 1000 ).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
-  
   
 
   return (
@@ -23,10 +20,9 @@ const MapScreen = ({route}) => {
         <MapboxGL.MapView 
         style={{flex: 1}} 
         styleURL={MapboxGL.StyleURL.Street}
-        onPress={handleMapPress} 
         >
           <MapboxGL.Camera
-            zoomLevel={10}
+            zoomLevel={11}
             centerCoordinate={positionCoords}
             animationMode="flyTo"
             animationDuration={2000}
@@ -39,13 +35,13 @@ const MapScreen = ({route}) => {
             title="Your location"
           /> 
           )}
-          {destinationPointer && (
+          {destinationCoords && (
           <MapboxGL.PointAnnotation
             id="userLocation"
-            coordinate={destinationPointer}
+            coordinate={destinationCoords}
             title="Your destination"
           /> 
-        )} 
+        )}
         {!positionCoords && !destinationCoords && (
           <MapboxGL.PointAnnotation
           id="default"
@@ -53,13 +49,7 @@ const MapScreen = ({route}) => {
           title="you need a ship here"
         />
         )}
-        {/* puts marker on map when clicked */}
-        {/* {clickedCoords && (
-        <MapboxGL.PointAnnotation
-          id='selected'
-          coordinate={clickedCoords}
-        />
-      )} */}
+      
          {myRoute && (
         <MapboxGL.ShapeSource id="routeSource" shape={{ type: 'LineString', coordinates: myRoute.geometry.coordinates }}>
           <MapboxGL.LineLayer id="routeFill" style={{ lineColor: '#3d85c6', lineWidth: 5 }} />
