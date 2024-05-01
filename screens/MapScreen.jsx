@@ -1,65 +1,155 @@
-import { View, Text } from 'react-native'
-import React, { useEffect, useState} from 'react'
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import MapboxGL from '@rnmapbox/maps'
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-const MapScreen = ({route}) => {
+const MapScreen = ({ route }) => {
   
-  const {positionCoords, destinationCoords, myRoute} = route.params;
+  const [price, setPrice] = useState(0);
+  const [priceVIP, setPriceVIP] = useState(0);
 
-  const distance = myRoute ? parseFloat( myRoute.distance / 1000 ).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
-  
+  const { positionCoords, destinationCoords, myRoute } = route.params;
 
+  const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
+  useEffect(() => {
+    setPrice(distance * 40);
+    setPriceVIP(distance * 60);
+  });
   return (
-    <View style={{flex: 1}}>
-        <Text
-        style={{height:20}}>{distance}</Text>
-        <MapboxGL.MapView 
-        style={{flex: 1}} 
+    <View style={{ flex: 1 }}>
+      <MapboxGL.MapView
+        style={{ flex: 1 }}
         styleURL={MapboxGL.StyleURL.Street}
-        >
-          <MapboxGL.Camera
-            zoomLevel={11}
-            centerCoordinate={positionCoords}
-            animationMode="flyTo"
-            animationDuration={2000}
-          />
-          
-          {positionCoords && (
+      >
+        <MapboxGL.Camera
+          zoomLevel={11}
+          centerCoordinate={positionCoords}
+          animationMode="flyTo"
+          animationDuration={2000}
+        />
+
+        {positionCoords && (
           <MapboxGL.PointAnnotation
             id="userLocation"
             coordinate={positionCoords}
             title="Your location"
-          /> 
-          )}
-          {destinationCoords && (
+          />
+        )}
+        {destinationCoords && (
           <MapboxGL.PointAnnotation
             id="userLocation"
             coordinate={destinationCoords}
             title="Your destination"
-          /> 
+          />
         )}
         {!positionCoords && !destinationCoords && (
           <MapboxGL.PointAnnotation
-          id="default"
-          coordinate={[0,0]}
-          title="you need a ship here"
-        />
+            id="default"
+            coordinate={[0, 0]}
+            title="you need a ship here"
+          />
         )}
-      
-         {myRoute && (
-        <MapboxGL.ShapeSource id="routeSource" shape={{ type: 'LineString', coordinates: myRoute.geometry.coordinates }}>
-          <MapboxGL.LineLayer id="routeFill" style={{ lineColor: '#3d85c6', lineWidth: 5 }} />
-        </MapboxGL.ShapeSource>
+
+        {myRoute && (
+          <MapboxGL.ShapeSource id="routeSource" shape={{ type: 'LineString', coordinates: myRoute.geometry.coordinates }}>
+            <MapboxGL.LineLayer id="routeFill" style={{ lineColor: '#3d85c6', lineWidth: 5 }} />
+          </MapboxGL.ShapeSource>
         )}
-        </MapboxGL.MapView>
-      
+      </MapboxGL.MapView>
+      <View style={styles.panel}>
+        <Text style={styles.panelText}>Choose your Ride</Text>
+        <TouchableOpacity style={styles.button}>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center'}}>
+            <Image
+              source={require('../classic.png')}
+            />
+            <Text style={styles.buttonText}>Classic</Text>
+          </View>
+          <Text style={{fontWeight: 'bold'}}>{price} DZD</Text>
+
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button}>
+          <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+            <Image
+              source={require('../comfort.png')}
+            />
+            <Text style={styles.buttonText}>Comfort</Text>
+          </View>
+          <Text style={{fontWeight: 'bold'}}>{priceVIP} DZD</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={{ padding: 20 }}>
+
+          <TouchableOpacity
+            style={styles.requestBtn}
+            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { positionCoords, destinationCoords, myRoute }) : console.log('error : empty field') }}>
+            <Text style={styles.buttonText}>Request Now</Text>
+          </TouchableOpacity>
+        </View>
     </View>
-);
-  
+  );
+
 }
 
 export default MapScreen;
+
+const styles = StyleSheet.create({
+  panel: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: 250,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+
+    elevation: 5, // add shadow 
+    padding: 18,
+  },
+  panelText: {
+    fontSize: 14,
+    color: '#333',
+    marginBottom: 10,
+    paddingLeft: 10,
+    fontWeight: 'bold',
+  },
+  button: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingVertical: 10,
+    padding: 20,
+    borderRadius: 10,
+    backgroundColor: '#FFFFDF',
+    borderColor: '#000',
+    marginTop: 8,
+    height: 50,
+  },
+  buttonText: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: 'bold',
+    paddingStart: 15,
+  },
+  requestBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 0,
+    backgroundColor: '#FFDC1C',
+
+
+    marginTop: 15,
+  },
+});

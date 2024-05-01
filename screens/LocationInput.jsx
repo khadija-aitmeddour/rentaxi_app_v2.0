@@ -29,7 +29,6 @@ const LocationInput = () => {
     );
   };
  
-
   //this function gets the place name from the coordinates of the place
   const getPlaceName = async (position) => {
     const apiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${position[0]},${position[1]}
