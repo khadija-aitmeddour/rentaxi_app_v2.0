@@ -30,10 +30,16 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.kadaitm.rentaxi_app_v2"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "8feb7ea7-d985-4799-84a9-0e9a344e18e5"
+      }
     }
   }
 }

@@ -197,7 +197,7 @@ const LocationInput = () => {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { positionCoords, destinationCoords, myRoute }) : console.log('error') }}>
+            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { positionCoords, destinationCoords, myRoute }) : console.log('error : empty field') }}>
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
         </View>
