@@ -2,11 +2,25 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState} from 'react'
 import MapboxGL from '@rnmapbox/maps'
 import { useNavigation } from '@react-navigation/native'
-//import Geolocation from '@react-native-community/geolocation'
+import Geolocation from '@react-native-community/geolocation'
 
 const ReservationScreen = () => {
   
   const navigation = useNavigation();
+  const [userLocation, setUserLocation] = useState(null);
+
+  useEffect(() => {
+    // Get user's current location
+    Geolocation.getCurrentPosition(
+      position => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation([longitude, latitude]);
+      },
+      error => console.error(error.message),
+      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
+    );
+  }, []);
+
   return (
     <View style={{flex: 1}}>
         <MapboxGL.MapView 
@@ -15,14 +29,14 @@ const ReservationScreen = () => {
         >
           <MapboxGL.Camera
             zoomLevel={8}
-            centerCoordinate={[4.7181, 36.0769]}
+            centerCoordinate={userLocation}
             animationMode="flyTo"
             animationDuration={2000}
           />
         
           <MapboxGL.PointAnnotation
             id="userLocation"
-            coordinate={[5, 36.0769]}
+            coordinate={userLocation}
             title="Your location"
           /> 
         </MapboxGL.MapView>
