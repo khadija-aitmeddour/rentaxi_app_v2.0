@@ -8,45 +8,7 @@ import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig'
 const ReservationScreen = () => {
   
   const navigation = useNavigation();
-  const [userPosition, setuserPosition] = useState(null);
-  const [userPositionName, setUserPositionName] = useState('');
   
-  const getuserPosition = () => {
-      Geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        setuserPosition([longitude, latitude]);
-      },
-      error => console.error(error.message),
-      { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 }
-    );
-  };
-  useEffect(() => {
-     getuserPosition();
-  }, [userPosition]);
-  
-  
-  const getPlaceName = async (position) => {
-    const apiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${position[0]},${position[1]}
-    .json?access_token=${MAPBOX_ACCESS_TOKEN}`;
-    try {
-      const response = await fetch(apiUrl);
-      const data = await response.json();
-      if (response.ok) {
-        setUserPositionName(data.features[0].place_name);
-        console.log(userPositionName)
-      } else {
-        return 'Place not found';
-      }
-    } catch (error) {
-      console.error('Error fetching place name:', error.message);
-      return null;
-    }
-  }
-  useEffect(() => {
-    getPlaceName(userPosition)
-  },[]);
-
   return (
     <View style={{flex: 1}}>
         <MapboxGL.MapView 
@@ -55,14 +17,14 @@ const ReservationScreen = () => {
         >
           <MapboxGL.Camera
             zoomLevel={8}
-            centerCoordinate={userPosition}
+            centerCoordinate={[4.7076, 36.5164]}
             animationMode="flyTo"
             animationDuration={2000}
           />
         
           <MapboxGL.PointAnnotation
             id="userPosition"
-            coordinate={userPosition}
+            coordinate={[ 4.7076, 36.5164]}
             title="Your location"
           /> 
         </MapboxGL.MapView>
@@ -71,7 +33,7 @@ const ReservationScreen = () => {
         <View style={styles.panel}>
         <Text style={styles.panelText}>Lost? Let's find your way!</Text>
         <Text style={{paddingLeft:10, color: "#333"}}>Click below to choose your destination 🗺️</Text>
-        <TouchableOpacity style={styles.button} onPress={()=>{navigation.navigate('Location', {userPositionName})}}>
+        <TouchableOpacity style={styles.button} onPress={()=>{navigation.navigate('Location')}}>
           <Text style={styles.buttonText}>Destination</Text>
           <Image
             source={require('../arrow.png')}
