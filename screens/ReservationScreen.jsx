@@ -36,7 +36,7 @@ const ReservationScreen = () => {
         <TouchableOpacity style={styles.button} onPress={()=>{navigation.navigate('Location')}}>
           <Text style={styles.buttonText}>Destination</Text>
           <Image
-            source={require('../arrow.png')}
+            source={require('../images/arrow.png')}
           />
         </TouchableOpacity>
       </View>

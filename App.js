@@ -3,20 +3,41 @@ import { NavigationContainer } from '@react-navigation/native';
 import LocalInput from './screens/LocationInput';
 import MapScreen from './screens/MapScreen';
 import ReservationScreen from './screens/ReservationScreen';
+import PendingRequest from './screens/PendingRequest';
+import Signup from './screens/Signup';
 
 function App() {
   const Stack = createStackNavigator();
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="Reservation" component={ReservationScreen} />
+        <Stack.Screen 
+        name="Signup" 
+        component={Signup} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        <Stack.Screen 
+        name="Reservation" 
+        component={ReservationScreen} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height: 0,
+          },
+        }}/>
         <Stack.Screen 
         name="Location" 
         component={LocalInput} 
         options={{
           title: 'Customize your ride',
           headerStyle: {
-            elevation: 0, // Hide the shadow
+            elevation: 0, 
           },
         }}/>
         <Stack.Screen 
@@ -25,7 +46,16 @@ function App() {
         options={{
           title: 'Finalize your request!',
           headerStyle: {
-            elevation: 0, // Hide the shadow
+            elevation: 0, 
+          },
+        }}/>
+        <Stack.Screen 
+        name="Request" 
+        component={PendingRequest} 
+        options={{
+          title: 'Searching for driver...',
+          headerStyle: {
+            elevation: 0, 
           },
         }}/>
       </Stack.Navigator>

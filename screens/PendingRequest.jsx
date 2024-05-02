@@ -10,10 +10,11 @@ const PendingRequest = ({route}) => {
           animationType="slide"
           transparent={true}
         >
-        <TouchableWithoutFeedback onPress={() => {setLoadVisible(false)}}>
+        
           <View style={styles.container}>
             <View style={styles.panel}>
-              <Text style={styles.panelText}>Searching for a driver...</Text>
+              <Text style={styles.panelText}>Contacting the nearest driver</Text>
+              <Text style={styles.panelText}>Please wait...</Text>
               <ActivityIndicator size="large" color="#FFDC1C" />
               <Text  style={{paddingTop: 10}}>{myPosition}</Text>
               <Text>{destination}</Text>
@@ -24,7 +25,6 @@ const PendingRequest = ({route}) => {
               </TouchableOpacity>
             </View>
           </View>
-          </TouchableWithoutFeedback>
         </Modal>
       );
     };
@@ -43,10 +43,9 @@ const PendingRequest = ({route}) => {
         borderRadius: 10,
         alignItems: 'center',
         width: 300,
-        height: 300,
+        height: 350,
       },
       panelText: {
-        marginBottom: 20,
         paddingTop: 5,
         fontSize: 18,
       },
@@ -56,7 +55,7 @@ const PendingRequest = ({route}) => {
         justifyContent: 'center',
         width: '100%',
         paddingVertical: 10,
-        marginTop: 20,
+        marginTop: 50,
         paddingHorizontal: 20,
         paddingRight: 10,
         borderRadius: 10,

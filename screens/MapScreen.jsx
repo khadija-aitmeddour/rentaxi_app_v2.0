@@ -2,16 +2,19 @@ import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import MapboxGL from '@rnmapbox/maps'
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
+import { useNavigation } from '@react-navigation/native';
 
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MapScreen = ({ route }) => {
   
+  const navigation = useNavigation();
   const [price, setPrice] = useState(0);
   const [priceVIP, setPriceVIP] = useState(0);
-
-  const { positionCoords, destinationCoords, myRoute } = route.params;
+  const [selectedTaxiType, setselectedTaxiType] = useState('');
+  
+  const { myPosition, destination, positionCoords, destinationCoords, myRoute } = route.params;
 
   const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
   useEffect(() => {
@@ -61,20 +64,20 @@ const MapScreen = ({ route }) => {
       </MapboxGL.MapView>
       <View style={styles.panel}>
         <Text style={styles.panelText}>Choose your Ride</Text>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={[styles.button, selectedTaxiType == 'Classic' && styles.selectedButton]} onPress={() => {setselectedTaxiType('Classic')}}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center'}}>
             <Image
-              source={require('../classic.png')}
+              source={require('../images/classic.png')}
             />
             <Text style={styles.buttonText}>Classic</Text>
           </View>
           <Text style={{fontWeight: 'bold'}}>{price} DZD</Text>
 
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity style={[styles.button, selectedTaxiType == 'Comfort' && styles.selectedButton]} onPress={() => {setselectedTaxiType('Comfort')}}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <Image
-              source={require('../comfort.png')}
+              source={require('../images/comfort.png')}
             />
             <Text style={styles.buttonText}>Comfort</Text>
           </View>
@@ -86,7 +89,7 @@ const MapScreen = ({ route }) => {
 
           <TouchableOpacity
             style={styles.requestBtn}
-            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { positionCoords, destinationCoords, myRoute }) : console.log('error : empty field') }}>
+            onPress={() => { selectedTaxiType ? navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, priceVIP}) : console.log('error :select a type') }}>
             <Text style={styles.buttonText}>Request Now</Text>
           </TouchableOpacity>
         </View>
@@ -133,6 +136,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     height: 50,
   },
+  selectedButton: {
+    backgroundColor: '#cfe2f3'
+  },
   buttonText: {
     fontSize: 16,
     color: '#333',
@@ -148,6 +154,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 0,
     backgroundColor: '#FFDC1C',
+  
 
 
     marginTop: 15,

@@ -186,7 +186,7 @@ const LocationInput = () => {
           )}
           <TouchableOpacity style={styles.link} onPress={() => { getPlaceName([4.7076, 36.5164]) }}>
             <Image
-              source={require('../myPosition.png')}
+              source={require('../images/myPosition.png')}
             />
             <Text style={styles.linkText}>Use My Current Location</Text>
           </TouchableOpacity>
@@ -197,7 +197,7 @@ const LocationInput = () => {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { positionCoords, destinationCoords, myRoute }) : console.log('error : empty field') }}>
+            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { myPosition, destination, positionCoords, destinationCoords, myRoute }) : console.log('error : empty field') }}>
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
         </View>
