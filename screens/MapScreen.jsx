@@ -28,7 +28,7 @@ const MapScreen = ({ route }) => {
         styleURL={MapboxGL.StyleURL.Street}
       >
         <MapboxGL.Camera
-          zoomLevel={11}
+          zoomLevel={8}
           centerCoordinate={positionCoords}
           animationMode="flyTo"
           animationDuration={2000}

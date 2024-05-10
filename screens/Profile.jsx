@@ -1,60 +1,171 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
+import Icon from 'react-native-vector-icons/Ionicons';
 
-const UserProfileScreen = () => {
-  const [user, setUser] = useState(null)
- 
-  const getUserData = async() => {
-      const endpoint = "http://192.168.43.196:3000/users";
-  
-      fetch(endpoint)
-      .then(response => response.json())
-      .then(data => {
-         setUser(data);
-       });
+import DropdownComponent from '../components/DropdownComponent';
 
-    }
-  useEffect(() => {
-    getUserData();
-  }, []);
+const UserProfileScreen = ({ route }) => {
+
+  const { user } = route.params;
+
+
+  const [name, setName] = useState('');
+  const [userName, setUserName] = useState(user.username);
+  const [address, setAddress] = useState(user.address);
+  const [birthday, setBirthday] = useState(user.birthday);
+  const [phone, setPhone] = useState(user.phone);
+  const [email, setEmail] = useState(user.email);
+  const [gender, setGender] = useState('');
+  const [photo, setPhoto] = useState(user.photo);
+  const [isEditable, setIsEditable] = useState(false);
+  let iconName = 'pencil';
+
+
+  const handleSave = () => {
+    setIsEditable(false);
+    console.log('Saving user information...');
+  };
+
 
   return (
-   
+
     <View style={styles.container}>
-       {user && (
-       <>
-      <Image source={{ uri: user.photo}} 
-      style={styles.profilePicture}
-      resizeMode="cover"/>
-      <Text style={styles.name}>{user.username}</Text>
-      <Text style={styles.email}>{user.phone}</Text>
-    
-    </>
-  )}
-  </View>
+      <ScrollView>
+        <View style={styles.topCover}>
+
+          <Image source={{ uri: photo }}
+            style={styles.profilePicture}
+            resizeMode="cover" />
+
+          <View style={{ flexDirection: 'row', paddingStart: 10 }}>
+            <TextInput
+              style={styles.name}
+              value={userName}
+
+              editable={isEditable}
+            />
+            <TouchableOpacity onPress={() => { setIsEditable(true) }}>
+              <Icon name={iconName} size={20} />
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.phone}>{phone}</Text>
+
+
+        </View>
+
+        <View style={styles.textFields}>
+
+          <Text style={styles.label}>Full Name</Text>
+          <TextInput
+            style={styles.input}
+            value={name}
+            onChangeText={text => setName(text)}
+            editable={isEditable}
+          />
+          <Text style={styles.label}>Phone Number</Text>
+          <TextInput
+            style={styles.input}
+            value={phone}
+            onChangeText={text => setPhone(text)}
+            editable={isEditable}
+          />
+          <Text style={styles.label}>Address</Text>
+          <TextInput
+            style={styles.input}
+            value={address}
+            onChangeText={text => setAddress(text)}
+            editable={isEditable}
+          />
+          <Text style={styles.label}>Birthday</Text>
+          <TextInput
+            style={styles.input}
+            value={birthday}
+            onChangeText={text => setBirthday(text)}
+            editable={isEditable}
+          />
+          <Text style={styles.label}>Gender:</Text>
+
+          <DropdownComponent
+            disable={!isEditable}
+          />
+
+          <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </View>
+
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#fff'
   },
+
+  topCover: {
+    alignItems: 'center',
+    backgroundColor: "#fff",
+    justifyContent: 'center',
+    height: 300,
+    elevation: 0,
+    marginBottom: 0,
+  },
   profilePicture: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
     marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'black',
+
   },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    paddingRight: 3,
+    color: 'black'
   },
-  email: {
+  phone: {
     fontSize: 18,
+
+  },
+
+  textFields: {
+    flex: 1,
+    padding: 20,
+  },
+  label: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 5,
+  },
+  input: {
+    height: 40,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 20,
+    color: 'black',
+  },
+  saveButton: {
+    backgroundColor: '#FFDC1C',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginVertical: 10,
+  },
+  saveButtonText: {
+    color: 'black',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

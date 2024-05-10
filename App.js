@@ -6,17 +6,23 @@ import LocalInput from './screens/LocationInput';
 import MapScreen from './screens/MapScreen';
 import ReservationScreen from './screens/ReservationScreen';
 import PendingRequest from './screens/PendingRequest';
-import Signup from './screens/Signup';
-import LocationInput from './screens/LocationInput';
+import SignupScreen from './screens/SignupScreen';
 import Home from './screens/Home';
 import Profile from './screens/Profile';
 import MyRides from './screens/MyRides';
-import PhoneSignIn from './screens/PhoneSignIn';
+import { useEffect, useState } from 'react';
+import { onAuthStateChanged } from 'firebase/auth';
+import { auth } from './config';
+import SplashScreen from './screens/SplashScreen';
+import SignInTypeScreen from './screens/SignInTypeScreen';
+import GetStarted from './screens/GetStarted';
+import LoginScreen from './screens/LoginScreen';
+import DriverApplicationScreen from './screens/DriverApplicationScreen';
 
 
-
-const HomePage = () => {
+const HomePage = ({route}) => {
   const Tab = createBottomTabNavigator();
+  const { user } = route.params
   return(
     <Tab.Navigator
          initialRouteName='Home'
@@ -53,7 +59,9 @@ const HomePage = () => {
         <Tab.Screen 
           name="Home" 
           component={Home} 
-          options={{headerShown:false}}/>
+          options={{headerShown:false}}
+          initialParams={{ user }}
+          />
         <Tab.Screen 
           name="Book Taxi" 
           component={ReservationScreen} 
@@ -68,8 +76,10 @@ const HomePage = () => {
           options={{
             headerStyle: {
               elevation:3,
-            }
+            },
+            headerShown: false,
           }}
+          initialParams={{ user }}
           />
        
       </Tab.Navigator>
@@ -78,15 +88,95 @@ const HomePage = () => {
 }
 
 function App() {
+
+  
   const Stack = createStackNavigator();
+
+  
+    const [initializing, setInitializing] = useState(true);
+    const [user, setUser] = useState(null);
+  
+    useEffect(() => {
+      const unsubscribe = onAuthStateChanged(auth, (user) => {
+        setUser(user);
+        if (initializing) setInitializing(false);
+      });
+  
+      return unsubscribe;
+    }, []);
+  
+    if (initializing) {
+      return null;
+    }
  
   return (
    
     <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen 
-        name="PhoneSignIn" 
-        component={PhoneSignIn} 
+        name="splash" 
+        component={SplashScreen} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        <Stack.Screen 
+        name="My Rides" 
+        component={MyRides} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        
+        <Stack.Screen 
+        name="GetStarted" 
+        component={GetStarted} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        <Stack.Screen 
+        name="SignupScreen" 
+        component={SignupScreen} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        <Stack.Screen 
+        name="LoginScreen" 
+        component={LoginScreen} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        <Stack.Screen 
+        name="SignInTypeScreen" 
+        component={SignInTypeScreen} 
+        options={{
+          title: '',
+          headerStyle: {
+            elevation: 0, 
+            height:0,
+          },
+        }}/>
+        <Stack.Screen 
+        name="DriverApplicationScreen" 
+        component={DriverApplicationScreen} 
         options={{
           title: '',
           headerStyle: {
