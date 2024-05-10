@@ -1,12 +1,18 @@
 import { View, Text, StyleSheet, TextInput, Image,TouchableOpacity } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigation } from '@react-navigation/native'
 
+
+
+
+
 const Signup = () => {
-  navigation = useNavigation();
+  
+  const navigation = useNavigation();
+
+
   return (
     <View style={styles.container}>
-        
         <Image
               source={require('../images/topCover.png')}
               style={{height: 370, width: 360}}
@@ -14,16 +20,17 @@ const Signup = () => {
         
         <View style={styles.inputFields}>
           
-          <Text style={styles.label}>Phone Number: </Text>
+          <Text style={styles.label}>Phone Number </Text>
           <TextInput
             style={styles.input}
             placeholder=" 🇩🇿 +213"
+         
           />
         
 
           <TouchableOpacity
             style={styles.button}
-            onPress={()=>{navigation.navigate('Reservation')}}
+            onPress={() => {navigation.navigate('HomePage')}}
            >
             <Text style={styles.buttonText}>Log in</Text>
           </TouchableOpacity>
@@ -52,7 +59,7 @@ const styles = StyleSheet.create({
       justifyContent: 'flex-end',
       alignItems: 'flex-start',
       backgroundColor: '#fff',
-      padding: 20,
+      padding: 30,
   
   
     },

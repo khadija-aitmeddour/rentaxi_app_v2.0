@@ -1,9 +1,11 @@
 import { View, Text, TouchableOpacity, TouchableWithoutFeedback, Modal, ActivityIndicator, StyleSheet } from 'react-native'
 import React, { useState } from 'react'
+import { useNavigation } from '@react-navigation/native';
 
 const PendingRequest = ({route}) => {
     const {selectedTaxiType, myPosition, destination, price, priceVIP} = route.params;
     const [loadVisible, setLoadVisible] = useState(true);
+    const navigation = useNavigation();
   return (
         <Modal
           visible={loadVisible}
@@ -21,7 +23,7 @@ const PendingRequest = ({route}) => {
               <Text  style={{fontWeight: 'bold'}}>{selectedTaxiType}</Text>
               <Text style={{fontWeight: 'bold', color: "#1bd719", padding: 10}}>{selectedTaxiType == 'Classic' ? price : priceVIP} DZD</Text>
               <TouchableOpacity style={styles.cancelButton}>
-                <Text style={styles.cancelButtonText} onPress={() => {setLoadVisible(false)}}>Cancel</Text>
+                <Text style={styles.cancelButtonText} onPress={() => {navigation.navigate('Location')}}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
