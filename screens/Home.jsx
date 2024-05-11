@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Platform, Image } from 'react-native';
 
 
-const HomeScreen = ({ navigation, route }) => {
+const Home = ({ navigation, route }) => {
   
-  const { user } = route.params;
-  const { username, photo } = user;
-
-
+  const user  = route.params; 
+  
+  const username = user ? user.username : 'stupiduser'
+  const photo = user ? user.photo : 'https://via.placeholder.com/75'
+  
+   
   const recentRides = [
     { id: 1, destination: 'Airport', date: 'May 1, 2024' },
     { id: 2, destination: 'Downtown', date: 'April 28, 2024' },
@@ -23,7 +25,7 @@ const HomeScreen = ({ navigation, route }) => {
        <ScrollView>
        <TouchableOpacity
         style={styles.profileButton}
-        onPress={() => navigation.navigate('My Profile', {user})}
+        onPress={() => navigation.navigate('My Profile')}
       >
         <Image 
         source={{ uri: photo}} 
@@ -77,7 +79,7 @@ const styles = StyleSheet.create({
   profileButton: {
     position: 'absolute',
     top: 35,
-    right: 18,
+    right: 15,
     width: 55,
     height: 55,
     borderRadius: 35,
@@ -139,4 +141,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default Home;

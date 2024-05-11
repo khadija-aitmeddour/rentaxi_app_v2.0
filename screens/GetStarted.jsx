@@ -29,7 +29,7 @@ const GetStarted = () => {
             onPress={() => {navigation.navigate('SignInTypeScreen')}}
            >
             <Text style={[styles.buttonText, {color: "white"}]}>Login</Text>
-          </TouchableOpacity> */}
+          </TouchableOpacity> */} 
 
 
       </View>

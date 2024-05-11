@@ -3,7 +3,8 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-nativ
 
 
 import { auth } from '../config';
-import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
+import { useNavigation } from '@react-navigation/native';
 
 
 
@@ -12,37 +13,11 @@ const ProfileScreen = () => {
  
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const navigation = useNavigation();
 
-
-   function signin () {
-    if (email && password) {
-         createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          console.log('User account created!');
-          sendEmailVerification(auth.currentUser,{
-            handleCodeInApp: true,
-            url:'https://rentaxi-backend.firebaseapp.com'
-
-          })
-            .then(() => {
-              alert('Verification email sent!');
-            })
-            .catch((error) => {
-              console.error('Error sending verification email:', error);
-            }).then(() => {
-              alert('adding the user someday..')
-            })
-        })
-        .catch((error) => {
-          if (error.code === 'auth/email-already-in-use') {
-            console.log('That email address is already in use!');
-          } else if (error.code === 'auth/invalid-email') {
-            console.log('That email address is invalid!');
-          } else {
-            console.error('Error creating user account:', error);
-          }
-        });
-    }
+   function signout () {
+    signOut(auth);
+    navigation.navigate('LoginScreen');
   }
   
 
@@ -71,8 +46,8 @@ const ProfileScreen = () => {
         secureTextEntry={true}
       />
       
-      <TouchableOpacity style={styles.saveButton} onPress={signin}>
-        <Text style={styles.saveButtonText}>Save</Text>
+      <TouchableOpacity style={styles.saveButton} onPress={signout}>
+        <Text style={styles.saveButtonText}>Logout</Text>
       </TouchableOpacity>
     </View>
   );

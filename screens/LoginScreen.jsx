@@ -8,45 +8,36 @@ const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [secure, setSecure] = useState(true);
-  const [user, setUser] = useState(
-    {
-      "address": "",
-      "birthday": "0000-00-00",
-      "dateInsc": "2024-04-30T22:00:00.000Z",
-      "email": "",
-      "idUser": "1",
-      "phone": "--------",
-      "photo": 'https://via.placeholder.com/75',
-      "points": 0,
-      "username": "who are you?"
-    }
-  )
+
 
   function signin() {
-    if (email && password) {
-      signInWithEmailAndPassword(auth, email, password)
-        .then(
-          async (userCredential) => {
-            await auth.onAuthStateChanged((userCredential) => {
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(
+        async () => {
+          await auth.onAuthStateChanged((userCredential) => {
+            if (userCredential) {
               const { emailVerified } = userCredential;
               if (emailVerified) {
-                navigation.navigate('HomePage', { user });
+                setEmail('');
+                setPassword(''); 
+                navigation.navigate('HomePage');
               }
               else {
                 alert('Please verify your email');
               }
-            });
-
-          })
-        .catch(
-          (error) => {
+            }
+          });
+        })
+      .catch(
+        () => {
           alert('Invalid email or password');
         });
-    }
-  }
+
+      }
 
   const handleForgotPassword = () => {
-    navigation.navigate('HomePage', { user });
+    navigation.navigate('HomePage');
   };
 
   const handleVisibilityPassword = () => {
@@ -54,6 +45,8 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleRegister = () => {
+    setEmail('');
+    setPassword('');
     navigation.navigate('SignInTypeScreen');
   };
 

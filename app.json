@@ -3,7 +3,6 @@
     "name": "rentaxi_app_v2.0",
     "slug": "rentaxi_app_v2",
     "plugins": [
-      ["@react-native-firebase/app", "@react-native-firebase/auth"],
       [
         "@rnmapbox/maps",
         {

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { auth } from '../config';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { set } from 'firebase/database';
 
 const SignupScreen = ({ navigation, route }) => {
   const [userUid, setUserUid] = useState('');
@@ -43,21 +44,34 @@ const SignupScreen = ({ navigation, route }) => {
     }
 
     fetch(endpoint, options).then(response => {
-      console.log(response);
+      if (response.ok) {
+        console.log("User added to database");
+      }
 
     });
   }
 
   const signup = async () => {
+    if (username === '') {
+      alert('Please enter a username');
+      return;
+    }
+    if(password != confirmPassword){
+      alert('Passwords do not match');
+      return;
+    }
     await createUserWithEmailAndPassword(auth, email, password)
       .then(
         async (userCredential) => {
           console.log('User account created!');
           const user = userCredential.user;
-
+          const uid = user.uid;
+          addUser(uid);
           await sendEmailVerification(user)
             .then(
               () => {
+                setEmail('');
+                setPassword('');
                 if (typeUser === 'customer') {
                   navigation.navigate('LoginScreen');
                 } else {
@@ -70,7 +84,15 @@ const SignupScreen = ({ navigation, route }) => {
               })
         })
       .catch((error) => {
-        console.error('Error creating user account:', error);
+        if (error.code === 'auth/email-already-in-use') {
+          alert('Email already in use');
+        }else if (error.code === 'auth/invalid-email') {
+          alert('Invalid email');
+        }else if(error.code === 'auth/weak-password'){
+          alert('Password is too weak');
+        }else{
+          alert('An error occurred');
+        }
       });
   }
 

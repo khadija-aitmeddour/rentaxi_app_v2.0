@@ -5,19 +5,18 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 import DropdownComponent from '../components/DropdownComponent';
 
-const UserProfileScreen = ({ route }) => {
+const Profile = ({route}) => {
 
-  const { user } = route.params;
-
-
+  const  user  = route.params;
+  
   const [name, setName] = useState('');
-  const [userName, setUserName] = useState(user.username);
-  const [address, setAddress] = useState(user.address);
-  const [birthday, setBirthday] = useState(user.birthday);
-  const [phone, setPhone] = useState(user.phone);
-  const [email, setEmail] = useState(user.email);
+  const [userName, setUserName] = useState(user ? user.username : '');
+  const [address, setAddress] = useState('');
+  const [birthday, setBirthday] = useState('');
+  const [phone, setPhone] = useState(user ? user.phone : 'xx-xxxx-xxxx');
+  const [email, setEmail] = useState(user ? user.email : '');
   const [gender, setGender] = useState('');
-  const [photo, setPhoto] = useState(user.photo);
+  const [photo, setPhoto] = useState(user ? user.photo : 'https://via.placeholder.com/75');
   const [isEditable, setIsEditable] = useState(false);
   let iconName = 'pencil';
 
@@ -33,26 +32,26 @@ const UserProfileScreen = ({ route }) => {
     <View style={styles.container}>
       <ScrollView>
         <View style={styles.topCover}>
+         
+                <Image source={{ uri: photo }}
+                  style={styles.profilePicture}
+                  resizeMode="cover" />
+             
+              <View style={{ flexDirection: 'row', paddingStart: 10 }}>
+                <TextInput
+                  style={styles.name}
+                  value={userName}
 
-          <Image source={{ uri: photo }}
-            style={styles.profilePicture}
-            resizeMode="cover" />
+                  editable={isEditable}
+                />
+                <TouchableOpacity onPress={() => { setIsEditable(true) }}>
+                  <Icon name={iconName} size={20} />
+                </TouchableOpacity>
+              </View>
 
-          <View style={{ flexDirection: 'row', paddingStart: 10 }}>
-            <TextInput
-              style={styles.name}
-              value={userName}
-
-              editable={isEditable}
-            />
-            <TouchableOpacity onPress={() => { setIsEditable(true) }}>
-              <Icon name={iconName} size={20} />
-            </TouchableOpacity>
-          </View>
-
-          <Text style={styles.phone}>{phone}</Text>
-
-
+              <Text style={styles.phone}>{phone}</Text>
+           
+          
         </View>
 
         <View style={styles.textFields}>
@@ -71,6 +70,13 @@ const UserProfileScreen = ({ route }) => {
             onChangeText={text => setPhone(text)}
             editable={isEditable}
           />
+          <Text style={styles.label}>Email</Text>
+          <TextInput
+            style={styles.input}
+            value={email}
+            onChangeText={text => setEmail(text)}
+            editable={isEditable}
+          />
           <Text style={styles.label}>Address</Text>
           <TextInput
             style={styles.input}
@@ -86,9 +92,9 @@ const UserProfileScreen = ({ route }) => {
             editable={isEditable}
           />
           <Text style={styles.label}>Gender:</Text>
-
+          
           <DropdownComponent
-            disable={!isEditable}
+          disable={!isEditable}
           />
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
@@ -169,4 +175,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default UserProfileScreen;
+export default Profile;

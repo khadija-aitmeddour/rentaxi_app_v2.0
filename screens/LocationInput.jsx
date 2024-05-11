@@ -3,6 +3,7 @@ import { View, TextInput, Button, StyleSheet, FlatList, Image, TouchableOpacity,
 import { useNavigation } from '@react-navigation/native';
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import Geolocation from '@react-native-community/geolocation';
+import { calculateDistance } from '../components/common_functions';
 
 const LocationInput = () => {
 
@@ -107,37 +108,19 @@ const LocationInput = () => {
     setShowSuggestions(0);
   };
 
-  const calculateDistance = async (origin, destination) => {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${encodeURIComponent(origin[0])},${encodeURIComponent(origin[1])};${encodeURIComponent(destination[0])},${encodeURIComponent(destination[1])}
-    ?steps=true&geometries=geojson&access_token=${encodeURIComponent(MAPBOX_ACCESS_TOKEN)}`;
-
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      if (response.ok) {
-        setMyRoute(data.routes[0])
-        console.log(myRoute)
-        const distance = parseFloat((data.routes[0].distance) / 1000).toFixed(2);
-
-        setDistance(distance);
-        console.log('this is the distance i get from inside the function', distance)
-      }
-      else {
-        console.error('Error:', data.message);
-        return null;
-      }
-    } catch (err) {
-      console.error('Exception:', err);
-      return null;
-    }
-
-
-  }
   useEffect(() => {
     console.log('My Position:', myPosition, '   ', positionCoords);
     console.log('Destination:', destination, '   ', destinationCoords);
-    if (positionCoords && destinationCoords)
+    if (positionCoords && destinationCoords){
       calculateDistance(positionCoords, destinationCoords)
+      .then((dist) =>
+      {
+        const {distance, route} = dist
+        setMyRoute(route);
+        setDistance(distance);
+      })
+      
+    }
   }, [positionCoords, destinationCoords]);
 
 

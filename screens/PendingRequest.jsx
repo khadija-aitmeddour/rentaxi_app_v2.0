@@ -4,15 +4,18 @@ import { useNavigation } from '@react-navigation/native';
 
 const PendingRequest = ({ route }) => {
     const { selectedTaxiType, myPosition, destination, price, priceVIP } = route.params;
-    const [countdown, setCountdown] = useState(5);
+    const [countdown, setCountdown] = useState(10);
     const [loadVisible, setLoadVisible] = useState(true);
+    const [message, setMessage] = useState('Contacting the nearest driver');
+    const [counter, setCounter] = useState(0);
     const navigation = useNavigation();
-
+    
     useEffect(() => {
         const timer = setTimeout(() => {
-           
-           
-        }, countdown * 10000);
+            setCounter(counter+1);
+            setCountdown(10);
+            setMessage(counter <= 3 ? 'Contacting another one...' : 'Sorry, we\'re doing our best');
+        }, countdown * 1000);
 
         return () => clearTimeout(timer);
     }, [countdown, navigation]);
@@ -20,7 +23,7 @@ const PendingRequest = ({ route }) => {
     useEffect(() => {
         const interval = setInterval(() => {
             setCountdown((prevCount) => prevCount - 1);
-        }, 1000);
+        }, 1300);
 
         return () => clearInterval(interval);
     }, []);
@@ -30,6 +33,17 @@ const PendingRequest = ({ route }) => {
         setLoadVisible(false); 
         navigation.navigate('Location'); 
     };
+    
+    
+     const fetchActiveDrivers = async() => {
+        const endpoint = 'http://192.168.0.119:3000/active-driver';
+        await fetch(endpoint)
+        .then(response => response.json())
+        .then(data => {
+            //do something here..
+        }
+        )
+     }
 
     return (
         <Modal
@@ -39,9 +53,9 @@ const PendingRequest = ({ route }) => {
         >
             <View style={styles.container}>
                 <View style={styles.panel}>
-                    <Text style={styles.panelText}>Contacting the nearest driver</Text>
+                    <Text style={styles.panelText}>{message}</Text>
                     <Text style={styles.panelText}>Please wait...</Text>
-                    <Text style={styles.panelText}>Canceling in {countdown} seconds</Text>
+                    <Text style={styles.panelText}> {countdown} seconds</Text>
                     <Text style={{ paddingTop: 10 }}>{myPosition}</Text>
                     <Text>{destination}</Text>
                     <Text style={{ fontWeight: 'bold' }}>{selectedTaxiType}</Text>
