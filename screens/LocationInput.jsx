@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import Geolocation from '@react-native-community/geolocation';
 import { calculateDistance } from '../components/common_functions';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const LocationInput = () => {
 
@@ -11,7 +12,7 @@ const LocationInput = () => {
   const [destination, setDestination] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [showSuggestions, setShowSuggestions] = useState(0);
-  const [positionCoords, setPositionCoords] = useState([4.7076, 36.5164]);
+  const [positionCoords, setPositionCoords] = useState(null);
   const [destinationCoords, setDestinationCoords] = useState(null);
   const [distance, setDistance] = useState(0);
   const [myRoute, setMyRoute] = useState(null);
@@ -32,6 +33,7 @@ const LocationInput = () => {
  
   //this function gets the place name from the coordinates of the place
   const getPlaceName = async (position) => {
+    if(position){
     const apiUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${position[0]},${position[1]}
     .json?access_token=${MAPBOX_ACCESS_TOKEN}`;
     try {
@@ -47,7 +49,7 @@ const LocationInput = () => {
       console.error('Error fetching place name:', error.message);
       return null;
     }
-  }
+  }}
 
   const handleMyPositionChange = async (text) => {
     setMyPosition(text);
@@ -126,7 +128,7 @@ const LocationInput = () => {
 
   return (
     <TouchableWithoutFeedback onPress={handleOutsidePress}>
-      <View style={styles.container}>
+       <View style={styles.container}>
         <View style={styles.inputFields}>
           <Text style={styles.label}>Set your location:</Text>
           <TextInput
@@ -167,7 +169,11 @@ const LocationInput = () => {
               keyExtractor={(item) => item.id}
             />
           )}
-          <TouchableOpacity style={styles.link} onPress={() => { getPlaceName([4.7076, 36.5164]) }}>
+          <TouchableOpacity style={styles.link} onPress={
+            async() => {
+              await getuserPosition();
+              getPlaceName(positionCoords);
+              }}>
             <Image
               source={require('../images/myPosition.png')}
             />
@@ -193,7 +199,7 @@ const LocationInput = () => {
 const styles = StyleSheet.create({
 
   container: {
-    flex: 1,
+    flexGrow: 1,
     flexDirection: 'column',
     justifyContent: 'space-between',
 

@@ -1,15 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Platform, Image } from 'react-native';
+import { UserContext } from '../context/UserContext';
 
+const Home = ({ navigation }) => {
 
-const Home = ({ navigation, route }) => {
+  const { user, setUser } = useContext(UserContext);
+  const [username, setUsername] = useState(user.fullName);
+  const [photo, setPhoto] = useState(user.photo);
   
-  const user  = route.params; 
+  useEffect(() => {
   
-  const username = user ? user.username : 'stupiduser'
-  const photo = user ? user.photo : 'https://via.placeholder.com/75'
-  
-   
+    setUsername(user.fullName);
+    setPhoto(user.photo);  
+    
+  }, [user]);
+
   const recentRides = [
     { id: 1, destination: 'Airport', date: 'May 1, 2024' },
     { id: 2, destination: 'Downtown', date: 'April 28, 2024' },
@@ -19,46 +24,46 @@ const Home = ({ navigation, route }) => {
     { id: 6, destination: 'Shopping Mall', date: 'April 25, 2024' },
   ];
 
- 
+
   return (
     <View contentContainerStyle={styles.container}>
-       <ScrollView>
-       <TouchableOpacity
-        style={styles.profileButton}
-        onPress={() => navigation.navigate('My Profile')}
-      >
-        <Image 
-        source={{ uri: photo}} 
-        style={styles.profilePic}
-        resizeMode="cover"
-        />
-      
-      </TouchableOpacity>
-      <View style={{alignItems:'center', backgroundColor: '#FFDC1C', height: 300}}>
-        
-        <Text style={styles.welcomeMessage}>Hey {username}! </Text>
-      
-      <Text style={{fontFamily: 'monospace'}}>Wanna go somewhere? Let's go!</Text>
-      <TouchableOpacity
-        style={styles.bookTaxiButton}
-        onPress={() => navigation.navigate('Book Taxi')}
-      >
-        <Image source={require('../images/taxiIcon2.png')}/>
-        <Text style={styles.buttonText}>RenTaxi Now !</Text>
-      </TouchableOpacity>
-      </View>
-      <View style={{alignItems: 'flex-start', padding: 20, paddingTop: 30, backgroundColor: "#fff"}}>
       <ScrollView>
-        <Text style={styles.recentRidesTitle}>Recent Rides</Text>
-       {/* <View style= {styles.line}/>  */}
-        {recentRides.map(ride => (
-          <View key={ride.id} style={styles.recentRideCard}>
-            <Text>{ride.destination}</Text>
-            <Text>{ride.date}</Text>
-          </View>
-        ))}
-      </ScrollView>
-      </View>
+        <TouchableOpacity
+          style={styles.profileButton}
+          onPress={() => navigation.navigate('Profile')}
+        >
+          <Image
+            source={{ uri: photo }}
+            style={styles.profilePic}
+            resizeMode="cover"
+          />
+
+        </TouchableOpacity>
+        <View style={{ alignItems: 'center', backgroundColor: '#FFDC1C', height: 300 }}>
+
+          <Text style={styles.welcomeMessage}>Hey {username}! </Text>
+
+          <Text style={{ fontFamily: 'monospace' }}>Wanna go somewhere? Let's go!</Text>
+          <TouchableOpacity
+            style={styles.bookTaxiButton}
+            onPress={() => navigation.navigate('Book Taxi')}
+          >
+            <Image source={require('../images/taxiIcon2.png')} />
+            <Text style={styles.buttonText}>RenTaxi Now !</Text>
+          </TouchableOpacity>
+        </View>
+        <View style={{ alignItems: 'flex-start', padding: 20, paddingTop: 30, backgroundColor: "#fff" }}>
+          <ScrollView>
+            <Text style={styles.recentRidesTitle}>Recent Rides</Text>
+            {/* <View style= {styles.line}/>  */}
+            {recentRides.map(ride => (
+              <View key={ride.id} style={styles.recentRideCard}>
+                <Text>{ride.destination}</Text>
+                <Text>{ride.date}</Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
       </ScrollView>
     </View>
   );
@@ -66,9 +71,9 @@ const Home = ({ navigation, route }) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex:1,
+    flex: 1,
     backgroundColor: "#fff",
-   
+
   },
   welcomeMessage: {
     fontSize: 24,
@@ -87,24 +92,24 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
-    zIndex: 10, 
-   
-   
+    zIndex: 10,
+
+
   },
   profilePic: {
     width: 65,
     height: 65,
     borderRadius: 40,
     borderWidth: 1,
-    borderColor:'#121212'
+    borderColor: '#999'
   },
   bookTaxiButton: {
-    justifyContent:'center',
+    justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'row',
     backgroundColor: '#FFDC1C',
     paddingHorizontal: 25,
-    paddingVertical:10,
+    paddingVertical: 10,
     borderRadius: 8,
     margin: 35,
     elevation: 10,
@@ -122,7 +127,7 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#FFDC1C',
     marginBottom: 10,
-    marginTop:10,
+    marginTop: 10,
   },
   recentRidesTitle: {
     fontSize: 16,

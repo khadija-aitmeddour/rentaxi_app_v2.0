@@ -1,7 +1,6 @@
  import { initializeApp, getApp, getApps } from 'firebase/app';
  import { getAuth } from 'firebase/auth';
-
-
+import {AuthorizationStatus, requestMessaging} from 'firebase/messaging';
 
  const firebaseConfig = {
   apiKey: "AIzaSyA3uheLUyf204-8TxUx8jKxHHGEdl1jOp8",

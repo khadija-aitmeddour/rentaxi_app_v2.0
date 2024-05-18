@@ -10,7 +10,7 @@ import React, { useState } from 'react';
   ];
 
   const DropdownComponent = ({disable}) => {
-    const [value, setValue] = useState(null);
+    const [val, setVal ] = useState(null);
     const [isFocus, setIsFocus] = useState(false);
 
     // const renderLabel = () => {
@@ -34,11 +34,11 @@ import React, { useState } from 'react';
           labelField="label"
           valueField="value"
           placeholder={!isFocus ? 'Select item' : '...'}
-          value={value}
+          value={val}
           onFocus={() => setIsFocus(true)}
           onBlur={() => setIsFocus(false)}
           onChange={item => {
-            setValue(item.value);
+            setVal(item.value);
             setIsFocus(false);
           }}
           disable={disable}

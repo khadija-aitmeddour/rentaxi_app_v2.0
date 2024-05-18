@@ -1,78 +1,169 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, TouchableOpacity } from 'react-native';
-
-
+import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons';
+import { pickPdf, pickImage } from '../components/common_functions';
 
 const DriverApplicationScreen = () => {
   const [fullName, setFullName] = useState('');
   const [cardIdNumber, setCardIdNumber] = useState('');
   const [drivingLicencePicture, setDrivingLicencePicture] = useState(null);
   const [nationalCardPicture, setNationalCardPicture] = useState(null);
-  const [phoneNumber, setPhoneNumber] = useState('');
   const [taxiLicencePicture, setTaxiLicencePicture] = useState(null);
   const [carnetDePlacePDF, setCarnetDePlacePDF] = useState(null);
-
+  const navigation = useNavigation();
+  
   const handleSubmit = () => {
-    
-    console.log({
-      fullName,
-      cardIdNumber,
-      drivingLicencePicture,
-      nationalCardPicture,
-      phoneNumber,
-      taxiLicencePicture,
-      carnetDePlacePDF
-    });
+   navigation.navigate('AddTaxiScreen');
   };
-  var options = {
-    title: 'Select Avatar',
-    customButtons: [
-      {name: 'fb', title: 'Choose Photo from Facebook'},
-    ],
-    storageOptions: {
-      skipBackup: true,
-      path: 'images'
-    }
-  };
- 
 
   return (
-    <View style={{ flex: 1, padding: 20 }}>
-      <Text>Full Name:</Text>
-      <TextInput
-        value={fullName}
-        onChangeText={setFullName}
-        placeholder="Enter your full name"
-      />
-      <Text>Card ID Number:</Text>
-      <TextInput
-        value={cardIdNumber}
-        onChangeText={setCardIdNumber}
-        placeholder="Enter your card ID number"
-        keyboardType="numeric"
-      />
-      <TouchableOpacity >
-        <Text>Select Driving Licence Picture</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView>
+      <View>
+       
+        <Text style={styles.label}>Full Name:</Text>
+        <TextInput
+          style={styles.input}
+          value={fullName}
+          onChangeText={setFullName}
+          placeholder="Enter your full name"
+        />
+        <Text style={styles.label}>Card ID Number:</Text>
+        <TextInput
+          style={styles.input}
+          value={cardIdNumber}
+          onChangeText={setCardIdNumber}
+          placeholder="Enter your card ID number"
+          keyboardType="numeric"
+        />
+
+        <TouchableOpacity 
+         onPress={async() => {
+          const img = await pickImage();
+          setNationalCardPicture(img);
+        }} 
+        style={styles.button}>
+          <Text style={styles.buttonText}>Select National Card Picture</Text>
+          <Icon name={'image'} size={20} color={'#000'} />
+        </TouchableOpacity>
+        {nationalCardPicture && <Image source={{ uri: nationalCardPicture }} style={styles.image} />}
+
+        <TouchableOpacity 
+         onPress={async() => {
+          const img = await pickImage();
+          if(img) {
+          setDrivingLicencePicture(img);
+          }
+        }} 
+        style={styles.button}>
+          <Text style={styles.buttonText}>Select Driving Licence Picture</Text>
+          <Icon name={'image'} size={20} color={'#000'} />
+        </TouchableOpacity>
+        {drivingLicencePicture && <Image source={{ uri: drivingLicencePicture }} style={styles.image} />}
+
+
+        <TouchableOpacity 
+        onPress={async() => {
+          const img = await pickImage();
+          if(img) {
+          setTaxiLicencePicture(img);
+          }
+        }} 
+        style={styles.button}>
+          <Text style={styles.buttonText}>Select Taxi Licence Picture</Text>
+          <Icon name={'image'} size={20} color={'#000'} />
+        </TouchableOpacity>
+        {taxiLicencePicture && <Image source={{ uri: taxiLicencePicture }} style={styles.image} />}
+
+        <TouchableOpacity 
+        onPress={
+            async() => {
+              const pdf = await pickPdf(); 
+              if(pdf) {
+              setCarnetDePlacePDF(pdf); 
+              }
+            }} 
+        style={styles.button}>
+          <Text style={styles.buttonText}>Select Carnet De Place PDF</Text>
+          <Image source={require('../images/pdf.png')} style={{ width: 22, height: 22 }} />
+        </TouchableOpacity>
+        {carnetDePlacePDF && <Text style={styles.uploadedText}>PDF Uploaded: {carnetDePlacePDF}</Text>}
+      </View>
+    </ScrollView>
+      <TouchableOpacity onPress={handleSubmit} style={[styles.button, styles.saveButton]}>
+        <Text style={[styles.buttonText, {fontWeight: 'bold'}]}>Continue</Text>
       </TouchableOpacity>
-      <TouchableOpacity >
-        <Text>Select National Card Picture</Text>
-      </TouchableOpacity>
-      <Text>Phone Number:</Text>
-      <TextInput
-        value={phoneNumber}
-        onChangeText={setPhoneNumber}
-        placeholder="Enter your phone number"
-        keyboardType="phone-pad"
-      />
-      <TouchableOpacity >
-        <Text>Select Taxi Licence Picture</Text>
-      </TouchableOpacity>
-      <TouchableOpacity>
-        <Text>Select Carnet De Place PDF</Text>
-      </TouchableOpacity>
-      <Button title="Submit Application" onPress={handleSubmit} />
-    </View>
+     </ScrollView> 
   );
 };
 
 export default DriverApplicationScreen;
+
+const styles = {
+  container: {
+    backgroundColor: '#fff',
+    padding:30,
+    paddingTop: 20,
+    paddingBottom: 15,
+    flexGrow: 1,
+    justifyContent: 'space-between',
+  },
+  heading: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginVertical: 20,
+    textAlign: 'center',
+  },
+  input: {
+    height: 40,
+    borderBottomWidth: 1,
+    borderColor: '#000',
+    borderRadius: 5,
+    marginBottom: 25,
+    paddingHorizontal: 5,
+    color: 'black',
+    width: '100%',
+  },
+  label: {
+    fontSize: 14,
+    alignSelf: 'flex-start',
+    paddingHorizontal: 5,
+  },
+  button: {
+    width: '100%',
+    marginBottom: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 5,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  buttonText: {
+    color: 'black',
+    fontSize: 15,
+  },
+  saveButton: {
+    backgroundColor: '#FFDC1C',
+    borderBottomWidth: 0,
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+  uploadedText: {
+    marginBottom: 20,
+    fontSize: 16,
+    color: 'green',
+    paddingHorizontal: 10,
+},
+image: {
+    alignSelf: 'center',
+    width: '80%',
+    height: 170,
+    marginBottom: 30,
+    borderRadius: 8,
+    
+},
+};

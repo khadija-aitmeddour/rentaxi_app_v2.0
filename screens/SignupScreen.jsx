@@ -4,6 +4,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'reac
 import { auth } from '../config';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { set } from 'firebase/database';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const SignupScreen = ({ navigation, route }) => {
   const [userUid, setUserUid] = useState('');
@@ -25,7 +26,7 @@ const SignupScreen = ({ navigation, route }) => {
       alert("Passwords do not match");
       return;
     }
-    const endpoint = "http://192.168.0.119:3000/user";
+    const endpoint = "http://192.168.0.119:3000/users";
     const user = {
       uid: uid,
       username: username,
@@ -70,8 +71,10 @@ const SignupScreen = ({ navigation, route }) => {
           await sendEmailVerification(user)
             .then(
               () => {
+                setUsername('');
                 setEmail('');
                 setPassword('');
+                setconfirmPassword('');
                 if (typeUser === 'customer') {
                   navigation.navigate('LoginScreen');
                 } else {
@@ -101,8 +104,8 @@ const SignupScreen = ({ navigation, route }) => {
     navigation.navigate('LoginScreen');
   };
 
-  return (
-    <View style={styles.container}>
+  return ( 
+  <ScrollView contentContainerStyle={styles.container}> 
       <Image
         source={require('../images/logo.png')}
         style={{ height: 65, width: 65 }}
@@ -163,7 +166,7 @@ const SignupScreen = ({ navigation, route }) => {
 
 
       <TouchableOpacity
-        onPress={signup}
+        onPress={() => {navigation.navigate('DriverApplicationScreen');}}
         style={styles.button}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>
@@ -176,17 +179,17 @@ const SignupScreen = ({ navigation, route }) => {
         <Text style={styles.link}>Login</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    paddingVertical: 150,
+    paddingVertical: 50,
     paddingHorizontal: 30
   },
   title: {

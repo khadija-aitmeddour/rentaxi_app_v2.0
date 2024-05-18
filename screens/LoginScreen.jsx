@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import { auth } from '../config';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { ScrollView } from 'react-native-gesture-handler';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -51,7 +52,7 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Image
         source={require('../images/logo.png')}
         style={{ height: 65, width: 65 }}
@@ -105,17 +106,17 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.link}>Create One!</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-    paddingVertical: 150,
+    paddingVertical: 50,
     paddingHorizontal: 30
   },
   title: {

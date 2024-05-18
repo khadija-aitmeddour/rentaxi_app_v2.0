@@ -8,8 +8,6 @@ import ReservationScreen from './screens/ReservationScreen';
 import PendingRequest from './screens/PendingRequest';
 import SignupScreen from './screens/SignupScreen';
 import Home from './screens/Home';
-import Profile from './screens/Profile';
-import MyRides from './screens/MyRides';
 import { useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './config';
@@ -18,29 +16,33 @@ import SignInTypeScreen from './screens/SignInTypeScreen';
 import GetStarted from './screens/GetStarted';
 import LoginScreen from './screens/LoginScreen';
 import DriverApplicationScreen from './screens/DriverApplicationScreen';
-
+import AddTaxiScreen from './screens/AddTaxiScreen';
+import { UserProvider } from './context/UserContext';
+import Profile from './screens/Profile';
+import MenuScreen from './screens/MenuScreen';
+import Notification from './screens/Notification';
 
 const HomePage = () => {
   const Tab = createBottomTabNavigator();
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-  const getUser = async (uid) => {
-    const endpoint = `http://192.168.0.119:3000/users/${uid}`
+    const getUser = async (uid) => {
+      const endpoint = `http://192.168.0.119:3000/users/${uid}`
 
-    await fetch(endpoint)
-      .then(response => response.json())
-      .then(data => {
-        setUser(data);
-      })
+      await fetch(endpoint)
+        .then(response => response.json())
+        .then(data => {
+          setUser(data);
+        })
 
-  }
+    }
     if (auth.currentUser != null) {
       const uid = auth.currentUser.uid
       getUser(uid);
     }
-  }, []);
-   
+  }, [user]);
+
   return (
     <Tab.Navigator
       initialRouteName='Home'
@@ -52,8 +54,8 @@ const HomePage = () => {
             iconName = 'home';
           } else if (route.name === 'Book Taxi') {
             iconName = 'add';
-          } else if (route.name === 'My Profile') {
-            iconName = 'person';
+          } else if (route.name === 'Menu') {
+            iconName = 'menu';
           } else if (route.name === 'My Rides') {
             iconName = 'book';
           }
@@ -87,11 +89,11 @@ const HomePage = () => {
         options={{ headerShown: false }} />
       <Tab.Screen
         name="My Rides"
-        component={MyRides}
+        component={Notification}
         options={{ headerShown: false }} />
       <Tab.Screen
-        name="My Profile"
-        component={Profile}
+        name="Menu"
+        component={MenuScreen}
         options={{
           headerStyle: {
             elevation: 3,
@@ -130,121 +132,134 @@ function App() {
   }
 
   return (
+    <UserProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen
+            name="splash"
+            component={SplashScreen}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+                height: 0,
+              },
+            }} />
 
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen
-          name="splash"
-          component={SplashScreen}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
-        <Stack.Screen
-          name="My Rides"
-          component={MyRides}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
 
-        <Stack.Screen
-          name="GetStarted"
-          component={GetStarted}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
-        <Stack.Screen
-          name="SignupScreen"
-          component={SignupScreen}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
-        <Stack.Screen
-          name="LoginScreen"
-          component={LoginScreen}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
-        <Stack.Screen
-          name="SignInTypeScreen"
-          component={SignInTypeScreen}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
-        <Stack.Screen
-          name="DriverApplicationScreen"
-          component={DriverApplicationScreen}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-              height: 0,
-            },
-          }} />
+          <Stack.Screen
+            name="GetStarted"
+            component={GetStarted}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+                height: 0,
+              },
+            }} />
+          <Stack.Screen
+            name="SignupScreen"
+            component={SignupScreen}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+                height: 0,
+              },
+            }} />
+          <Stack.Screen
+            name="LoginScreen"
+            component={LoginScreen}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+                height: 0,
+              },
+            }} />
+          <Stack.Screen
+            name="SignInTypeScreen"
+            component={SignInTypeScreen}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+                height: 0,
+              },
+            }} />
+          <Stack.Screen
+            name="DriverApplicationScreen"
+            component={DriverApplicationScreen}
+            options={{
+              title: 'Application Form',
+              headerStyle: {
+                elevation: 0,
+              },
+            }} />
+          <Stack.Screen
+            name="AddTaxiScreen"
+            component={AddTaxiScreen}
+            options={{
+              title: 'Taxi Informations',
+              headerStyle: {
+                elevation: 0,
+              },
+            }} />
 
-        <Stack.Screen
-          name="HomePage"
-          component={HomePage}
-          options={{
-            headerShown: false,
-          }} />
+          <Stack.Screen
+            name="HomePage"
+            component={HomePage}
+            options={{
+              headerShown: false,
+            }} />
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
+            options={{
+              title: '',
+              
+              headerStyle: {
+                elevation: 0,
+                backgroundColor: '#FFDC1C',
+                height: 30,
 
-        <Stack.Screen
-          name="Location"
-          component={LocalInput}
-          options={{
-            title: 'Customize your ride',
-            headerStyle: {
-              elevation: 0,
-            },
-            headerShown: true,
-          }} />
-        <Stack.Screen
-          name="Map"
-          component={MapScreen}
-          options={{
-            title: 'Finalize your request!',
-            headerStyle: {
-              elevation: 0,
-            },
-            headerShown: true,
-          }} />
-        <Stack.Screen
-          name="Request"
-          component={PendingRequest}
-          options={{
-            title: '',
-            headerStyle: {
-              elevation: 0,
-            },
-            headerShown: false,
-          }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+              },
+              headerShown: true,
+            }} />
 
+          <Stack.Screen
+            name="Location"
+            component={LocalInput}
+            options={{
+              title: 'Customize your ride',
+              headerStyle: {
+                elevation: 0,
+              },
+              headerShown: true,
+            }} />
+          <Stack.Screen
+            name="Map"
+            component={MapScreen}
+            options={{
+              title: 'Finalize your request!',
+              headerStyle: {
+                elevation: 0,
+              },
+              headerShown: true,
+            }} />
+          <Stack.Screen
+            name="Request"
+            component={PendingRequest}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+              },
+              headerShown: false,
+            }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
 }
 
