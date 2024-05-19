@@ -20,7 +20,9 @@ import AddTaxiScreen from './screens/AddTaxiScreen';
 import { UserProvider } from './context/UserContext';
 import Profile from './screens/Profile';
 import MenuScreen from './screens/MenuScreen';
-import Notification from './screens/Notification';
+import Push from './screens/Push';
+import ReservationDetailsScreen from './screens/ReservationDetailsScreen';
+
 
 const HomePage = () => {
   const Tab = createBottomTabNavigator();
@@ -56,8 +58,8 @@ const HomePage = () => {
             iconName = 'add';
           } else if (route.name === 'Menu') {
             iconName = 'menu';
-          } else if (route.name === 'My Rides') {
-            iconName = 'book';
+          } else if (route.name === 'Notifications') {
+            iconName = 'notifications';
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -88,8 +90,8 @@ const HomePage = () => {
         component={ReservationScreen}
         options={{ headerShown: false }} />
       <Tab.Screen
-        name="My Rides"
-        component={Notification}
+        name="Notifications"
+        component={Push}
         options={{ headerShown: false }} />
       <Tab.Screen
         name="Menu"
@@ -135,18 +137,6 @@ function App() {
     <UserProvider>
       <NavigationContainer>
         <Stack.Navigator>
-          <Stack.Screen
-            name="splash"
-            component={SplashScreen}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-                height: 0,
-              },
-            }} />
-
-
           <Stack.Screen
             name="GetStarted"
             component={GetStarted}
@@ -250,6 +240,16 @@ function App() {
           <Stack.Screen
             name="Request"
             component={PendingRequest}
+            options={{
+              title: '',
+              headerStyle: {
+                elevation: 0,
+              },
+              headerShown: false,
+            }} />
+          <Stack.Screen
+            name="ReservationDetails"
+            component={ReservationDetailsScreen}
             options={{
               title: '',
               headerStyle: {

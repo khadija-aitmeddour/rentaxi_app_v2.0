@@ -1,6 +1,6 @@
  import { initializeApp, getApp, getApps } from 'firebase/app';
  import { getAuth } from 'firebase/auth';
-import {AuthorizationStatus, requestMessaging} from 'firebase/messaging';
+import {messaging} from 'firebase/messaging';
 
  const firebaseConfig = {
   apiKey: "AIzaSyA3uheLUyf204-8TxUx8jKxHHGEdl1jOp8",
@@ -18,4 +18,5 @@ const app = getApps.length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 const auth = getAuth(app);
 
-export {auth};
+
+export {auth, messaging};

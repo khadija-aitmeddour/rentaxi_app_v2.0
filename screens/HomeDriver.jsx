@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
+import { View, Text, Button, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import { UserContext } from '../context/UserContext';
+import {sendCustomPushNotification} from './Push';
 
-const Home = ({ navigation }) => {
+const HomeDriver = ({ navigation }) => {
 
   const { user, setUser } = useContext(UserContext);
   const [username, setUsername] = useState('Yuki');
@@ -23,7 +24,8 @@ const Home = ({ navigation }) => {
     { id: 5, destination: 'Shopping Mall', date: 'April 25, 2024' },
     { id: 6, destination: 'Shopping Mall', date: 'April 25, 2024' },
   ];
-
+ 
+    
 
   return (
     <View style={styles.container}>
@@ -39,31 +41,16 @@ const Home = ({ navigation }) => {
           />
 
         </TouchableOpacity>
-        <View style={{ alignItems: 'center', backgroundColor: '#FFDC1C', height: 300, borderBottomStartRadius: 15, borderBottomEndRadius: 15 }}>
+        <View style={{ alignItems: 'center', backgroundColor: '#FFDC1C', height: 200, borderBottomStartRadius: 15, borderBottomEndRadius: 15 }}>
 
-          <Text style={styles.welcomeMessage}>Hey {username}! </Text>
+          <Text style={styles.welcomeMessage}>Hey Driver {username}! </Text>
 
-          <Text style={{ fontFamily: 'monospace' }}>Wanna go somewhere? Let's go!</Text>
-          <TouchableOpacity
-            style={styles.bookTaxiButton}
-            onPress={() => navigation.navigate('Book Taxi')}
-          >
-            <Image source={require('../images/taxiIcon2.png')} />
-            <Text style={styles.buttonText}>RenTaxi Now !</Text>
-          </TouchableOpacity>
+          <Text style={{ fontFamily: 'monospace' }}>Ready to drive? Let's go!</Text>
+          
         </View>
-        <View style={{ alignItems: 'flex-start', padding: 20, paddingTop: 30, backgroundColor: "#fff" }}>
-          <ScrollView>
-            <Text style={styles.recentRidesTitle}>Recent Rides</Text>
-            {/* <View style= {styles.line}/>  */}
-            {recentRides.map(ride => (
-              <View key={ride.id} style={styles.recentRideCard}>
-                <Text>{ride.destination}</Text>
-                <Text>{ride.date}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+        
+        
+        
       </ScrollView>
     </View>
   );
@@ -146,4 +133,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Home;
+export default HomeDriver;

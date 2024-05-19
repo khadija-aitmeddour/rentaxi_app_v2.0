@@ -17,8 +17,8 @@
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#FFDC1C"
     },
     "assetBundlePatterns": [
       "**/*"
@@ -30,7 +30,7 @@
       "googleServicesFile": "./google-services.json",
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#FFDC1C"
       },
       "package": "com.kadaitm.rentaxi_app_v2"
     },

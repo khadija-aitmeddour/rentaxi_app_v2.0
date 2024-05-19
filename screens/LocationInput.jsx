@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, Button, StyleSheet, FlatList, Image, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
+import { View, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import Geolocation from '@react-native-community/geolocation';
 import { calculateDistance } from '../components/common_functions';
-import { ScrollView } from 'react-native-gesture-handler';
 
 const LocationInput = () => {
 
@@ -23,7 +22,6 @@ const LocationInput = () => {
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;
-        console.log('hey')
         setPositionCoords([longitude, latitude]);
       },
       error => console.error(error.message),

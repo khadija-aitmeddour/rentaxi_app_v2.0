@@ -1,9 +1,10 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import MapboxGL from '@rnmapbox/maps'
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import { useNavigation } from '@react-navigation/native';
-
+import { sendPushNotification, registerForPushNotificationsAsync } from '../hooks/usePushNotifications';
+import * as Notifications from 'expo-notifications';
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
@@ -13,7 +14,10 @@ const MapScreen = ({ route }) => {
   const [price, setPrice] = useState(0);
   const [priceVIP, setPriceVIP] = useState(0);
   const [selectedTaxiType, setselectedTaxiType] = useState('');
-  
+  const [expoPushToken, setExpoPushToken] = useState('ExponentPushToken[VhhgZ8IrAoduMGLjc9NGxQ]');
+  const [notification, setNotification] = useState(undefined);
+  const notificationListener = useRef();
+  const responseListener = useRef();
   const { myPosition, destination, positionCoords, destinationCoords, myRoute } = route.params;
 
   const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
@@ -21,6 +25,33 @@ const MapScreen = ({ route }) => {
     setPrice(distance * 40);
     setPriceVIP(distance * 60);
   });
+
+  //handle notifications
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then(token => setExpoPushToken(token || ''))
+      .catch(error => setExpoPushToken(error.message));
+
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      console.log(response);
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
+
+  const sendNotification = async() =>{
+    
+    await sendPushNotification(expoPushToken, 'Ride Request!', 'A new ride request has been made!', { selectedTaxiType, myPosition, destination, price, priceVIP });
+    navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, priceVIP});
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <MapboxGL.MapView
@@ -89,7 +120,7 @@ const MapScreen = ({ route }) => {
 
           <TouchableOpacity
             style={styles.requestBtn}
-            onPress={() => { selectedTaxiType ? navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, priceVIP}) : console.log('error :select a type') }}>
+            onPress={sendNotification}>
             <Text style={styles.buttonText}>Request Now</Text>
           </TouchableOpacity>
         </View>
