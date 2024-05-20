@@ -8,10 +8,9 @@ import ReservationScreen from './screens/ReservationScreen';
 import PendingRequest from './screens/PendingRequest';
 import SignupScreen from './screens/SignupScreen';
 import Home from './screens/Home';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './config';
-import SplashScreen from './screens/SplashScreen';
 import SignInTypeScreen from './screens/SignInTypeScreen';
 import GetStarted from './screens/GetStarted';
 import LoginScreen from './screens/LoginScreen';
@@ -20,13 +19,17 @@ import AddTaxiScreen from './screens/AddTaxiScreen';
 import { UserProvider } from './context/UserContext';
 import Profile from './screens/Profile';
 import MenuScreen from './screens/MenuScreen';
-import Push from './screens/Push';
+import HomeDriver from './screens/HomeDriver';
 import ReservationDetailsScreen from './screens/ReservationDetailsScreen';
-
+import * as Notifications from 'expo-notifications';
+import {registerForPushNotificationsAsync} from './hooks/usePushNotifications';
+import { useNavigation } from '@react-navigation/native';
+import NotFound from './screens/NotFound';
+import { UserContext } from './context/UserContext';
 
 const HomePage = () => {
   const Tab = createBottomTabNavigator();
-  const [user, setUser] = useState(null);
+  const {user, setUser} = useContext(UserContext);
 
   useEffect(() => {
     const getUser = async (uid) => {
@@ -43,7 +46,43 @@ const HomePage = () => {
       const uid = auth.currentUser.uid
       getUser(uid);
     }
-  }, [user]);
+  }, []);
+  
+  const [expoPushToken, setExpoPushToken] = useState('');
+    const [notification, setNotification] = useState(undefined);
+    const notificationListener = useRef();
+    const responseListener = useRef();
+    const navigation = useNavigation();
+    const notificationReceivedTime = useRef();
+  
+    useEffect(() => {
+      registerForPushNotificationsAsync()
+        .then(token => setExpoPushToken(token || ''))
+        .catch(error => setExpoPushToken(error.message));
+  
+      notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+        setNotification(notification);
+        notificationReceivedTime.current = new Date();
+      });
+  
+      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+        const {reservationDetails} = response.notification.request.content.data;
+        console.log('reservationDetails', reservationDetails)
+        const currentTime = new Date();
+        const timeElapsed = (currentTime - notificationReceivedTime.current) / 1000;
+  
+        if (timeElapsed > 12) {
+          navigation.navigate('Not Found');
+        } else {
+        navigation.navigate('ReservationDetails', { reservationDetails});
+        }
+      });
+  
+      return () => {
+        Notifications.removeNotificationSubscription(notificationListener.current);
+        Notifications.removeNotificationSubscription(responseListener.current);
+      };
+    }, []);
 
   return (
     <Tab.Navigator
@@ -91,7 +130,7 @@ const HomePage = () => {
         options={{ headerShown: false }} />
       <Tab.Screen
         name="Notifications"
-        component={Push}
+        component={HomeDriver}
         options={{ headerShown: false }} />
       <Tab.Screen
         name="Menu"
@@ -255,6 +294,12 @@ function App() {
               headerStyle: {
                 elevation: 0,
               },
+              headerShown: false,
+            }} />
+          <Stack.Screen
+            name="Not Found"
+            component={NotFound}
+            options={{
               headerShown: false,
             }} />
         </Stack.Navigator>

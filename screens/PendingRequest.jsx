@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import { sendPushNotification } from '../hooks/usePushNotifications';
 
 const PendingRequest = ({ route }) => {
-    const { selectedTaxiType, myPosition, destination, price, priceVIP } = route.params;
+    const { username, photo, selectedTaxiType, myPosition, destination, distance, price } = route.params;
     const [countdown, setCountdown] = useState(10);
     const [loadVisible, setLoadVisible] = useState(true);
     const [message, setMessage] = useState('Contacting the nearest driver');
@@ -15,6 +16,7 @@ const PendingRequest = ({ route }) => {
             setCounter(counter+1);
             setCountdown(10);
             setMessage(counter <= 3 ? 'Contacting another one...' : 'Sorry, we\'re doing our best');
+            sendPushNotification("ExponentPushToken[VhhgZ8IrAoduMGLjc9NGxQ]", 'Ride Request!', 'A new ride request has been made!', {username, photo, myPosition, destination, distance, price });
         }, countdown * 1000);
 
         return () => clearTimeout(timer);
@@ -60,7 +62,7 @@ const PendingRequest = ({ route }) => {
                     <Text>{destination}</Text>
                     <Text style={{ fontWeight: 'bold' }}>{selectedTaxiType}</Text>
                     <Text style={{ fontWeight: 'bold', color: "#1bd719", padding: 10 }}>
-                        {selectedTaxiType === 'Classic' ? price : priceVIP} DZD
+                        {price} DZD
                     </Text>
                     <TouchableOpacity style={styles.cancelButton} onPress={cancelRequest}>
                         <Text style={styles.cancelButtonText}>Cancel</Text>

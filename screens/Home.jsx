@@ -10,7 +10,7 @@ const Home = ({ navigation }) => {
   
   useEffect(() => {
    
-    setUsername(user.fullName);
+    setUsername(user.username);
     setPhoto(user.photo);  
   
   }, [user]);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, Button, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import { UserContext } from '../context/UserContext';
-import {sendCustomPushNotification} from './Push';
 
 const HomeDriver = ({ navigation }) => {
 

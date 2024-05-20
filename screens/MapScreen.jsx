@@ -1,57 +1,41 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import MapboxGL from '@rnmapbox/maps'
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import { useNavigation } from '@react-navigation/native';
 import { sendPushNotification, registerForPushNotificationsAsync } from '../hooks/usePushNotifications';
-import * as Notifications from 'expo-notifications';
+import { UserContext } from '../context/UserContext';
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const MapScreen = ({ route }) => {
   
+  const {user, setUser} = useContext(UserContext);
+  const [username, setUsername] = useState(user.username);
+  const [photo, setPhoto] = useState(user.photo);
+  
+  useEffect(() => {
+    setUsername(user.username);
+    setPhoto(user.photo);
+  }, [user]);
+
   const navigation = useNavigation();
-  const [price, setPrice] = useState(0);
+  const [priceClassic, setPriceClassic] = useState(0);
   const [priceVIP, setPriceVIP] = useState(0);
   const [selectedTaxiType, setselectedTaxiType] = useState('');
-  const [expoPushToken, setExpoPushToken] = useState('ExponentPushToken[VhhgZ8IrAoduMGLjc9NGxQ]');
-  const [notification, setNotification] = useState(undefined);
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  const [price, setPrice] = useState(0);
   const { myPosition, destination, positionCoords, destinationCoords, myRoute } = route.params;
 
   const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
   useEffect(() => {
-    setPrice(distance * 40);
+    setPriceClassic(distance * 40);
     setPriceVIP(distance * 60);
   });
-
-  //handle notifications
   useEffect(() => {
-    registerForPushNotificationsAsync()
-      .then(token => setExpoPushToken(token || ''))
-      .catch(error => setExpoPushToken(error.message));
-
-    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-      setNotification(notification);
-    });
-
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-      console.log(response);
-    });
-
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener.current);
-      Notifications.removeNotificationSubscription(responseListener.current);
-    };
-  }, []);
-
-  const sendNotification = async() =>{
-    
-    await sendPushNotification(expoPushToken, 'Ride Request!', 'A new ride request has been made!', { selectedTaxiType, myPosition, destination, price, priceVIP });
-    navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, priceVIP});
-  }
-
+    selectedTaxiType == 'Classic' ? setPrice(priceClassic) : setPrice(priceVIP);
+  }, [selectedTaxiType]);
+  
+  
   return (
     <View style={{ flex: 1 }}>
       <MapboxGL.MapView
@@ -102,7 +86,7 @@ const MapScreen = ({ route }) => {
             />
             <Text style={styles.buttonText}>Classic</Text>
           </View>
-          <Text style={{fontWeight: 'bold'}}>{price} DZD</Text>
+          <Text style={{fontWeight: 'bold'}}>{priceClassic} DZD</Text>
 
         </TouchableOpacity>
         <TouchableOpacity style={[styles.button, selectedTaxiType == 'Comfort' && styles.selectedButton]} onPress={() => {setselectedTaxiType('Comfort')}}>
@@ -120,7 +104,12 @@ const MapScreen = ({ route }) => {
 
           <TouchableOpacity
             style={styles.requestBtn}
-            onPress={sendNotification}>
+            onPress={async() => {
+              
+              await sendPushNotification("ExponentPushToken[AiVPGZIfxan_hVyqs3Y6xd]", 'Ride Request!', 'A new ride request has been made!', {username, photo, myPosition, destination, distance, price });
+              navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, distance, username, photo});
+            }
+              }>
             <Text style={styles.buttonText}>Request Now</Text>
           </TouchableOpacity>
         </View>

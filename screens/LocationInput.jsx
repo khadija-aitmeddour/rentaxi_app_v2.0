@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
+import { View, Keyboard, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import Geolocation from '@react-native-community/geolocation';
 import { calculateDistance } from '../components/common_functions';
-
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 const LocationInput = () => {
 
   const [myPosition, setMyPosition] = useState('');
@@ -125,7 +125,7 @@ const LocationInput = () => {
 
 
   return (
-    <TouchableWithoutFeedback onPress={handleOutsidePress}>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
        <View style={styles.container}>
         <View style={styles.inputFields}>
           <Text style={styles.label}>Set your location:</Text>

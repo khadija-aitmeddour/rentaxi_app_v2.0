@@ -8,7 +8,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../config';
 import { useNavigation } from '@react-navigation/native';
 
-const MenuScreen = () => {
+const MenuScreen = ({navigation}) => {
 
   const { user, setUser } = useContext(UserContext);
 
@@ -16,12 +16,13 @@ const MenuScreen = () => {
   const [userName, setUserName] = useState(user.username);
   const [phone, setPhone] = useState(user.phone);
   const [photo, setPhoto] = useState(user.photo);
-  const navigation = useNavigation();
+  
 
   useEffect(() => {
 
-    setUserName(user.fullName);
+    setUserName(user.username);
     setPhoto(user.photo);
+    setPhone(user.phone);
 
   }, [user]);
 

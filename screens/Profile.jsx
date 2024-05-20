@@ -10,7 +10,7 @@ const Profile = () => {
   const { user, setUser } = useContext(UserContext);
 
   const [name, setName] = useState(user.fullName);
-  const [userName, setUserName] = useState(user.fullName);
+  const [userName, setUserName] = useState(user.username);
   const [address, setAddress] = useState(user.address);
   const [birthday, setBirthday] = useState(user.birthday);
   const [phone, setPhone] = useState(user.phone);
@@ -25,7 +25,7 @@ const Profile = () => {
   const handleSave = () => {
     setIsEditable(false);
     console.log('Saving user information...');
-    setUserName(name);
+    setPhone(phone);
     setUser({
       ...user,
       fullName: name,
@@ -52,7 +52,7 @@ const Profile = () => {
                 setPhoto(img);
                 setUser({ ...user, photo: img });
                 }
-                
+                console.log('Photo selected: ', img);
               }}
               style={{zIndex: 2 }}  
                 >
@@ -105,6 +105,13 @@ const Profile = () => {
         <View style={{marginTop: 56}}></View>
         <ScrollView contentContainerStyle={styles.textFields}>
 
+          <Text style={styles.label}>Username</Text>
+          <TextInput
+            style={styles.input}
+            value={userName}
+            onChangeText={text => setUserName(text)}
+            editable={isEditable}
+          />
           <Text style={styles.label}>Full Name</Text>
           <TextInput
             style={styles.input}
