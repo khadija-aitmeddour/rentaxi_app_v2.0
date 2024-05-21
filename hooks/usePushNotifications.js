@@ -3,6 +3,20 @@ import { Text, View, Button, Platform, Alert } from 'react-native';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
+import io from 'socket.io-client';
+
+//   const socket = io('http://192.168.0.119:3001');
+
+//   const sendRequest = () => {
+//   socket.emit('clientRequest', { clientId: socket.id });
+//   console.log('Request sent');
+
+// };
+//   socket.on('driverResponse', (response) => {
+//       console.log(response);
+//   });
+
+
 
 // Set notification handler
 Notifications.setNotificationHandler({
@@ -34,6 +48,7 @@ async function sendPushNotification(expoPushToken, title, body, reservationDetai
     body: JSON.stringify(message),
   }).then(response => {
     if (response.ok) {
+      //sendRequest();
       console.log('Successfully sent push notification');
     } else {
       console.error('Failed to send push notification');

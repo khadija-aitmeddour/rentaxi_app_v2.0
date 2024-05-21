@@ -10,6 +10,7 @@ const SignupScreen = ({ navigation, route }) => {
   const [userUid, setUserUid] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setconfirmPassword] = useState('');
   const [secure, setSecure] = useState(true);
@@ -31,8 +32,10 @@ const SignupScreen = ({ navigation, route }) => {
       uid: uid,
       username: username,
       email: email,
+      phone: phone,
       password: password,
-      typeUser: typeUser
+      typeUser: typeUser,
+      photo: 'https://picsum.photos/200/300',
     }
     options = {
       method: 'POST',
@@ -75,6 +78,7 @@ const SignupScreen = ({ navigation, route }) => {
                 setEmail('');
                 setPassword('');
                 setconfirmPassword('');
+               
                 if (typeUser === 'customer') {
                   navigation.navigate('LoginScreen');
                 } else {
@@ -129,6 +133,15 @@ const SignupScreen = ({ navigation, route }) => {
           onChangeText={setEmail}
           icon
         />
+        <Text style={styles.label}>Phone Number</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Phone Number"
+          value={phone}
+          onChangeText={setPhone}
+          icon
+          keyboardType='numeric'
+        />
         <Text style={styles.label}>Password</Text>
         <View style={styles.passwordContainer}>
           <TextInput
@@ -166,7 +179,7 @@ const SignupScreen = ({ navigation, route }) => {
 
 
       <TouchableOpacity
-        onPress={() => {navigation.navigate('DriverApplicationScreen');}}
+        onPress={signup}
         style={styles.button}>
         <Text style={styles.buttonText}>Continue</Text>
       </TouchableOpacity>

@@ -13,6 +13,7 @@ export const UserProvider = ({ children }) => {
     phone: '999 9999 999',
     address: '',
     birthday: '',
+    expoPushToken: '',
     
   });
 

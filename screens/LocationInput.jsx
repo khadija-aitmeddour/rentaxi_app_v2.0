@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Keyboard, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import Geolocation from '@react-native-community/geolocation';
 import { calculateDistance } from '../components/common_functions';
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
-const LocationInput = () => {
+import { ReservationContext } from '../context/ReservationContext';
 
+
+const LocationInput = () => {
+  
+  const {reservation, setReservation} = useContext(ReservationContext);
   const [myPosition, setMyPosition] = useState('');
   const [destination, setDestination] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -111,6 +114,7 @@ const LocationInput = () => {
   useEffect(() => {
     console.log('My Position:', myPosition, '   ', positionCoords);
     console.log('Destination:', destination, '   ', destinationCoords);
+   
     if (positionCoords && destinationCoords){
       calculateDistance(positionCoords, destinationCoords)
       .then((dist) =>
@@ -118,6 +122,7 @@ const LocationInput = () => {
         const {distance, route} = dist
         setMyRoute(route);
         setDistance(distance);
+        
       })
       
     }
@@ -184,7 +189,18 @@ const LocationInput = () => {
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => { (myPosition && destination) ? navigation.navigate('Map', { myPosition, destination, positionCoords, destinationCoords, myRoute }) : console.log('error : empty field') }}>
+            onPress={() => { 
+              setReservation({
+                ...reservation,
+                myPosition: myPosition,
+                destination: destination,
+                distance: distance,
+                myRoute: myRoute,
+                positionCoords: positionCoords,
+                destinationCoords: destinationCoords
+              });
+              navigation.navigate('Map')
+            }}>
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>
         </View>

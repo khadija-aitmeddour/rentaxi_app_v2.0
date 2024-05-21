@@ -5,6 +5,8 @@ import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import { useNavigation } from '@react-navigation/native';
 import { sendPushNotification, registerForPushNotificationsAsync } from '../hooks/usePushNotifications';
 import { UserContext } from '../context/UserContext';
+import { ReservationContext } from '../context/ReservationContext';
+import io from 'socket.io-client';
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
@@ -20,13 +22,15 @@ const MapScreen = ({ route }) => {
   }, [user]);
 
   const navigation = useNavigation();
+
+  const {reservation, setReservation} = useContext(ReservationContext);
   const [priceClassic, setPriceClassic] = useState(0);
   const [priceVIP, setPriceVIP] = useState(0);
   const [selectedTaxiType, setselectedTaxiType] = useState('');
   const [price, setPrice] = useState(0);
-  const { myPosition, destination, positionCoords, destinationCoords, myRoute } = route.params;
+  const { myPosition, destination, positionCoords, destinationCoords, distance, myRoute } = reservation;
 
-  const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
+  //const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
   useEffect(() => {
     setPriceClassic(distance * 40);
     setPriceVIP(distance * 60);
@@ -35,7 +39,20 @@ const MapScreen = ({ route }) => {
     selectedTaxiType == 'Classic' ? setPrice(priceClassic) : setPrice(priceVIP);
   }, [selectedTaxiType]);
   
-  
+  const socket = io('http://192.168.0.119:3001');
+
+  const sendRequest = async() => {
+  socket.emit('clientRequest', { clientId: socket.id });
+  console.log('Request sent');
+  setReservation({...reservation, status: 'pending'});
+  await sendPushNotification("ExponentPushToken[sLglZIFI0brGRkTQK018jd]", 'Ride Request!', 'A new ride request has been made!', {username, photo, myPosition, destination, distance, price });
+  selectedTaxiType ? navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, distance, username, photo}) : console.log('Please select a taxi type');
+
+};
+  socket.on('driverResponse', (response) => {
+      response.accepted ? setReservation({...reservation, status: 'accepted'}) : setReservation({...reservation, status: 'rejected'});
+  });
+
   return (
     <View style={{ flex: 1 }}>
       <MapboxGL.MapView
@@ -106,8 +123,7 @@ const MapScreen = ({ route }) => {
             style={styles.requestBtn}
             onPress={async() => {
               
-              await sendPushNotification("ExponentPushToken[AiVPGZIfxan_hVyqs3Y6xd]", 'Ride Request!', 'A new ride request has been made!', {username, photo, myPosition, destination, distance, price });
-              navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, distance, username, photo});
+              sendRequest();
             }
               }>
             <Text style={styles.buttonText}>Request Now</Text>

@@ -1,149 +1,36 @@
-import React, { useState, useEffect, useContext } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
-import { UserContext } from '../context/UserContext';
+// ClientApp.js
+import React, { useState, useEffect } from 'react';
+import { View, Text, Button, TextInput } from 'react-native';
+import io from 'socket.io-client';
 
-const Home = ({ navigation }) => {
+const socket = io('http://192.168.0.119:3001'); // replace with your server URL
 
-  const { user, setUser } = useContext(UserContext);
-  const [username, setUsername] = useState('Yuki');
-  const [photo, setPhoto] = useState('https://picsum.photos/200/300');
-  
+const ClientApp = () => {
+  const [status, setStatus] = useState('Idle');
+  const [location, setLocation] = useState('here');
+
   useEffect(() => {
-   
-    setUsername(user.username);
-    setPhoto(user.photo);  
-  
-  }, [user]);
+    socket.on('driverResponse', (response) => {
+      console.log(response);
+    });
 
-  const recentRides = [
-    { id: 1, destination: 'Airport', date: 'May 1, 2024' },
-    { id: 2, destination: 'Downtown', date: 'April 28, 2024' },
-    { id: 3, destination: 'Shopping Mall', date: 'April 25, 2024' },
-    { id: 4, destination: 'Shopping Mall', date: 'April 25, 2024' },
-    { id: 5, destination: 'Shopping Mall', date: 'April 25, 2024' },
-    { id: 6, destination: 'Shopping Mall', date: 'April 25, 2024' },
-  ];
+    return () => {
+      socket.off('driverResponse');
+    };
+  }, []);
 
+  const sendRequest = () => {
+    socket.emit('clientRequest', { clientId: socket.id});
+    setStatus('Waiting for a driver response...');
+  };
 
   return (
-    <View style={styles.container}>
-      <ScrollView>
-        <TouchableOpacity
-          style={styles.profileButton}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Image
-            source={{ uri: photo }}
-            style={styles.profilePic}
-            resizeMode="cover"
-          />
-
-        </TouchableOpacity>
-        <View style={{ alignItems: 'center', backgroundColor: '#FFDC1C', height: 300, borderBottomStartRadius: 15, borderBottomEndRadius: 15 }}>
-
-          <Text style={styles.welcomeMessage}>Hey {username}! </Text>
-
-          <Text style={{ fontFamily: 'monospace' }}>Wanna go somewhere? Let's go!</Text>
-          <TouchableOpacity
-            style={styles.bookTaxiButton}
-            onPress={() => navigation.navigate('Book Taxi')}
-          >
-            <Image source={require('../images/taxiIcon2.png')} />
-            <Text style={styles.buttonText}>RenTaxi Now !</Text>
-          </TouchableOpacity>
-        </View>
-        <View style={{ alignItems: 'flex-start', padding: 20, paddingTop: 30, backgroundColor: "#fff" }}>
-          <ScrollView>
-            <Text style={styles.recentRidesTitle}>Recent Rides</Text>
-            {/* <View style= {styles.line}/>  */}
-            {recentRides.map(ride => (
-              <View key={ride.id} style={styles.recentRideCard}>
-                <Text>{ride.destination}</Text>
-                <Text>{ride.date}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      </ScrollView>
+    <View>
+      
+      <Button title="Request Driver" onPress={sendRequest} />
+      <Text>Status: {status}</Text>
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-
-  },
-  welcomeMessage: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#000',
-    paddingTop: 80
-  },
-  profileButton: {
-    position: 'absolute',
-    top: 35,
-    right: 15,
-    width: 55,
-    height: 55,
-    borderRadius: 35,
-    backgroundColor: '#fff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 5,
-    zIndex: 10,
-
-
-  },
-  profilePic: {
-    width: 65,
-    height: 65,
-    borderRadius: 40,
-    borderWidth: 1,
-    borderColor: '#999'
-  },
-  bookTaxiButton: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    backgroundColor: '#FFDC1C',
-    paddingHorizontal: 25,
-    paddingVertical: 10,
-    borderRadius: 8,
-    margin: 35,
-    elevation: 10,
-    borderWidth: 1,
-    borderColor: '#FFDC1C'
-  },
-  buttonText: {
-    color: '#181818',
-    fontSize: 17,
-    paddingTop: 10,
-    fontWeight: 'bold',
-  },
-  line: {
-    width: '100%',
-    height: 1,
-    backgroundColor: '#FFDC1C',
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  recentRidesTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#FFDC1C',
-    marginBottom: 10,
-  },
-  recentRideCard: {
-    backgroundColor: '#ffffff',
-    padding: 5,
-    borderRadius: 8,
-    marginBottom: 15,
-    width: 300,
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-  },
-});
-
-export default Home;
+export default ClientApp;

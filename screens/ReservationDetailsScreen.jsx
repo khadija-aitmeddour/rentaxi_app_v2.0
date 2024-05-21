@@ -1,12 +1,35 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import io from 'socket.io-client';
+
+const socket = io('http://192.168.0.119:3001');
 
 export default function ReservationDetails({ route }) {
   const { reservationDetails } = route.params;
+  const [currentRequest, setCurrentRequest] = useState(null);
 
+  useEffect(() => {
+    socket.emit('registerDriver', 'driver1');
+
+    socket.on('driverRequest', (request) => {
+      console.log('Received driver request:', request);
+      setCurrentRequest(request);
+      console.log('heeeee-------------------',currentRequest);
+    });
+
+    return () => { 
+      socket.off('driverRequest');
+    };
+  }, []);
   const handleAccept = () => {
-    // Handle accept logic here
-    console.log('Reservation accepted');
+    if (currentRequest) {
+      const response = {
+        clientId: currentRequest.clientId,
+        accepted: true,
+      };
+      socket.emit('driverResponse', response);
+      setCurrentRequest(null); 
+    }
   };
 
   const handleDecline = () => {

@@ -22,14 +22,15 @@ import MenuScreen from './screens/MenuScreen';
 import HomeDriver from './screens/HomeDriver';
 import ReservationDetailsScreen from './screens/ReservationDetailsScreen';
 import * as Notifications from 'expo-notifications';
-import {registerForPushNotificationsAsync} from './hooks/usePushNotifications';
+import { registerForPushNotificationsAsync } from './hooks/usePushNotifications';
 import { useNavigation } from '@react-navigation/native';
 import NotFound from './screens/NotFound';
 import { UserContext } from './context/UserContext';
+import { ReservationProvider } from './context/ReservationContext';
 
 const HomePage = () => {
   const Tab = createBottomTabNavigator();
-  const {user, setUser} = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
 
   useEffect(() => {
     const getUser = async (uid) => {
@@ -47,42 +48,42 @@ const HomePage = () => {
       getUser(uid);
     }
   }, []);
-  
+
   const [expoPushToken, setExpoPushToken] = useState('');
-    const [notification, setNotification] = useState(undefined);
-    const notificationListener = useRef();
-    const responseListener = useRef();
-    const navigation = useNavigation();
-    const notificationReceivedTime = useRef();
-  
-    useEffect(() => {
-      registerForPushNotificationsAsync()
-        .then(token => setExpoPushToken(token || ''))
-        .catch(error => setExpoPushToken(error.message));
-  
-      notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-        setNotification(notification);
-        notificationReceivedTime.current = new Date();
-      });
-  
-      responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-        const {reservationDetails} = response.notification.request.content.data;
-        console.log('reservationDetails', reservationDetails)
-        const currentTime = new Date();
-        const timeElapsed = (currentTime - notificationReceivedTime.current) / 1000;
-  
-        if (timeElapsed > 12) {
-          navigation.navigate('Not Found');
-        } else {
-        navigation.navigate('ReservationDetails', { reservationDetails});
-        }
-      });
-  
-      return () => {
-        Notifications.removeNotificationSubscription(notificationListener.current);
-        Notifications.removeNotificationSubscription(responseListener.current);
-      };
-    }, []);
+  const [notification, setNotification] = useState(undefined);
+  const notificationListener = useRef();
+  const responseListener = useRef();
+  const navigation = useNavigation();
+  const notificationReceivedTime = useRef();
+
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then(token => setExpoPushToken(token || ''))
+      .catch(error => setExpoPushToken(error.message));
+    setUser({ ...user, expoPushToken: expoPushToken })
+    notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+      setNotification(notification);
+      notificationReceivedTime.current = new Date();
+    });
+
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+      const { reservationDetails } = response.notification.request.content.data;
+      console.log('reservationDetails', reservationDetails)
+      const currentTime = new Date();
+      const timeElapsed = (currentTime - notificationReceivedTime.current) / 1000;
+
+      if (timeElapsed > 12) {
+        navigation.navigate('Not Found');
+      } else {
+        navigation.navigate('ReservationDetails', { reservationDetails });
+      }
+    });
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener.current);
+      Notifications.removeNotificationSubscription(responseListener.current);
+    };
+  }, []);
 
   return (
     <Tab.Navigator
@@ -174,136 +175,139 @@ function App() {
 
   return (
     <UserProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Screen
-            name="GetStarted"
-            component={GetStarted}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-                height: 0,
-              },
-            }} />
-          <Stack.Screen
-            name="SignupScreen"
-            component={SignupScreen}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-                height: 0,
-              },
-            }} />
-          <Stack.Screen
-            name="LoginScreen"
-            component={LoginScreen}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-                height: 0,
-              },
-            }} />
-          <Stack.Screen
-            name="SignInTypeScreen"
-            component={SignInTypeScreen}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-                height: 0,
-              },
-            }} />
-          <Stack.Screen
-            name="DriverApplicationScreen"
-            component={DriverApplicationScreen}
-            options={{
-              title: 'Application Form',
-              headerStyle: {
-                elevation: 0,
-              },
-            }} />
-          <Stack.Screen
-            name="AddTaxiScreen"
-            component={AddTaxiScreen}
-            options={{
-              title: 'Taxi Informations',
-              headerStyle: {
-                elevation: 0,
-              },
-            }} />
+      <ReservationProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Screen
+              name="GetStarted"
+              component={GetStarted}
+              options={{
+                title: '',
+                headerStyle: {
+                  elevation: 0,
+                  height: 0,
+                },
+              }} />
+            <Stack.Screen
+              name="SignupScreen"
+              component={SignupScreen}
+              options={{
+                title: '',
+                headerStyle: {
+                  elevation: 0,
+                  height: 0,
+                },
+              }} />
+            <Stack.Screen
+              name="LoginScreen"
+              component={LoginScreen}
+              options={{
+                title: '',
+                headerStyle: {
+                  elevation: 0,
+                  height: 0,
+                },
+              }} />
+            <Stack.Screen
+              name="SignInTypeScreen"
+              component={SignInTypeScreen}
+              options={{
+                title: '',
+                headerStyle: {
+                  elevation: 0,
+                  height: 0,
+                },
+              }} />
+            <Stack.Screen
+              name="DriverApplicationScreen"
+              component={DriverApplicationScreen}
+              options={{
+                title: 'Application Form',
+                headerStyle: {
+                  elevation: 0,
+                },
+              }} />
+            <Stack.Screen
+              name="AddTaxiScreen"
+              component={AddTaxiScreen}
+              options={{
+                title: 'Taxi Informations',
+                headerStyle: {
+                  elevation: 0,
+                },
+              }} />
 
-          <Stack.Screen
-            name="HomePage"
-            component={HomePage}
-            options={{
-              headerShown: false,
-            }} />
-          <Stack.Screen
-            name="Profile"
-            component={Profile}
-            options={{
-              title: '',
-              
-              headerStyle: {
-                elevation: 0,
-                backgroundColor: '#FFDC1C',
-                height: 30,
+            <Stack.Screen
+              name="HomePage"
+              component={HomePage}
+              options={{
+                headerShown: false,
+              }} />
+            <Stack.Screen
+              name="Profile"
+              component={Profile}
+              options={{
+                title: '',
 
-              },
-              headerShown: true,
-            }} />
+                headerStyle: {
+                  elevation: 0,
+                  backgroundColor: '#FFDC1C',
+                  height: 30,
 
-          <Stack.Screen
-            name="Location"
-            component={LocalInput}
-            options={{
-              title: 'Customize your ride',
-              headerStyle: {
-                elevation: 0,
-              },
-              headerShown: true,
-            }} />
-          <Stack.Screen
-            name="Map"
-            component={MapScreen}
-            options={{
-              title: 'Finalize your request!',
-              headerStyle: {
-                elevation: 0,
-              },
-              headerShown: true,
-            }} />
-          <Stack.Screen
-            name="Request"
-            component={PendingRequest}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-              },
-              headerShown: false,
-            }} />
-          <Stack.Screen
-            name="ReservationDetails"
-            component={ReservationDetailsScreen}
-            options={{
-              title: '',
-              headerStyle: {
-                elevation: 0,
-              },
-              headerShown: false,
-            }} />
-          <Stack.Screen
-            name="Not Found"
-            component={NotFound}
-            options={{
-              headerShown: false,
-            }} />
-        </Stack.Navigator>
-      </NavigationContainer>
+                },
+                headerShown: true,
+              }} />
+
+            <Stack.Screen
+              name="Location"
+              component={LocalInput}
+              options={{
+                title: 'Customize your ride',
+                headerStyle: {
+                  elevation: 0,
+                },
+                headerShown: true,
+              }} />
+            <Stack.Screen
+              name="Map"
+              component={MapScreen}
+              options={{
+                title: 'Finalize your request!',
+                headerStyle: {
+                  elevation: 0,
+                },
+                headerShown: true,
+              }} />
+            <Stack.Screen
+              name="Request"
+              component={PendingRequest}
+              options={{
+                title: '',
+                headerStyle: {
+                  elevation: 0,
+                },
+                headerShown: false,
+              }} />
+            <Stack.Screen
+              name="ReservationDetails"
+              component={ReservationDetailsScreen}
+              options={{
+                title: '',
+                headerStyle: {
+                  elevation: 0,
+                },
+                headerShown: false,
+              }} />
+            <Stack.Screen
+              name="Not Found"
+              component={NotFound}
+              options={{
+                headerShown: false,
+              }} />
+
+          </Stack.Navigator>
+        </NavigationContainer>
+      </ReservationProvider>
     </UserProvider>
   );
 }
