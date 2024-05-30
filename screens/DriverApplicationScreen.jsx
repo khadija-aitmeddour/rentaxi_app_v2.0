@@ -4,7 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { pickPdf, pickImage } from '../components/common_functions';
 
-const DriverApplicationScreen = () => {
+const DriverApplicationScreen = ({route}) => {
+  const { uid, email, username, phone } = route.params;
   const [fullName, setFullName] = useState('');
   const [cardIdNumber, setCardIdNumber] = useState('');
   const [drivingLicencePicture, setDrivingLicencePicture] = useState(null);
@@ -14,7 +15,7 @@ const DriverApplicationScreen = () => {
   const navigation = useNavigation();
   
   const handleSubmit = () => {
-   navigation.navigate('AddTaxiScreen');
+   navigation.navigate('AddTaxiScreen', {uid, email, username, phone, fullName, cardIdNumber, drivingLicencePicture, nationalCardPicture, taxiLicencePicture, carnetDePlacePDF});
   };
 
   return (
@@ -63,19 +64,7 @@ const DriverApplicationScreen = () => {
         {drivingLicencePicture && <Image source={{ uri: drivingLicencePicture }} style={styles.image} />}
 
 
-        <TouchableOpacity 
-        onPress={async() => {
-          const img = await pickImage();
-          if(img) {
-          setTaxiLicencePicture(img);
-          }
-        }} 
-        style={styles.button}>
-          <Text style={styles.buttonText}>Select Taxi Licence Picture</Text>
-          <Icon name={'image'} size={20} color={'#000'} />
-        </TouchableOpacity>
-        {taxiLicencePicture && <Image source={{ uri: taxiLicencePicture }} style={styles.image} />}
-
+        
         <TouchableOpacity 
         onPress={
             async() => {

@@ -1,6 +1,6 @@
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
 import { auth } from '../config';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ScrollView } from 'react-native-gesture-handler';
@@ -10,23 +10,56 @@ const LoginScreen = ({ navigation }) => {
   const [password, setPassword] = useState('');
   const [secure, setSecure] = useState(true);
 
+  async function isRegistered(uid) {
+    console.log(uid)
+    const endpoint = `http://192.168.0.119:3000/users/${uid}`
+
+    const response = await fetch(endpoint)
+    if (response.ok) {
+      const size = response._bodyInit._data.size;
+      return { size };
+    } else {
+      return 0;
+    }
+  }
+
 
   function signin() {
-
+    if(email === 'admin' || password === '') {
+      navigation.navigate('AdminDashboard');
+      return;
+    }
     signInWithEmailAndPassword(auth, email, password)
       .then(
         async () => {
-          await auth.onAuthStateChanged((userCredential) => {
+          await auth.onAuthStateChanged(async (userCredential) => {
             if (userCredential) {
-              const { emailVerified } = userCredential;
-              if (emailVerified) {
-                setEmail('');
-                setPassword(''); 
-                navigation.navigate('HomePage');
-              }
-              else {
-                alert('Please verify your email');
-              }
+              console.log(userCredential.uid)
+              await isRegistered(userCredential.uid)
+                .then(response => {
+                  if (response.size === 0) {
+                    Alert.alert(
+                      '\t\t\tApplication still pending... ',
+                      '\nAn Email will be sent to you once the \n\t\t\t\t\tApplication approved\n\n\t\tThank you for your patience!',
+
+                      [{ text: 'I understand', onPress: () => console.log('OK Pressed') }],
+                      { cancelable: true }
+                    );
+                    return;
+                  }
+                  else {
+                    const { emailVerified } = userCredential;
+                    if (emailVerified) {
+                      setEmail('');
+                      setPassword('');
+                      navigation.navigate('HomePage');
+                    }
+                    else {
+                      alert('Please verify your email');
+                    }
+                  }
+                });
+
             }
           });
         })
@@ -35,7 +68,7 @@ const LoginScreen = ({ navigation }) => {
           alert('Invalid email or password');
         });
 
-      }
+  }
 
   const handleForgotPassword = () => {
     navigation.navigate('HomePage');

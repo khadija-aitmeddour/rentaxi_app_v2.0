@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#FFFFFF',
-  },
+  }, 
   promptText: {
     fontSize: 18,
     marginBottom: 20,

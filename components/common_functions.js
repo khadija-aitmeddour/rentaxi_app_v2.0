@@ -9,7 +9,7 @@ export const calculateDistance = async (origin, destination) => {
       const response = await fetch(url);
       const data = await response.json();
       if (response.ok) {
-          const distance =  parseFloat((data.routes[0].distance) / 1000).toFixed(2);
+          const distance =  parseFloat((data.routes[0].distance) / 1000).toFixed(0);
           const route = data.routes[0];
         return {distance, route};
       }
@@ -51,7 +51,7 @@ export const pickImage = async () => {
         const res = await DocumentPicker.pick({
             type: [DocumentPicker.types.images],
         });
-        console.log('URI of the picked image:', res[0].uri);
+        console.log('URI of the picked image:', res);
         const uri = res[0].uri;
         return uri
     } catch (err) {
@@ -63,3 +63,15 @@ export const pickImage = async () => {
     }
 };
 
+export async function isRegistered(uid) {
+    console.log(uid)
+    const endpoint = `http://192.168.0.119:3000/users/${uid}`
+
+    const response = await fetch(endpoint)
+    if (response.ok) {
+      const size = response._bodyInit._data.size;
+      return { size };
+    } else {
+      return 0;
+    }
+  }

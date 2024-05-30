@@ -18,7 +18,7 @@ const SignupScreen = ({ navigation, route }) => {
 
   const { typeUser } = route.params;
 
-  function addUser(uid) {
+  function addCustomer(uid) {
     if (password.length < 6) {
       alert("Password must be at least 6 characters");
       return;
@@ -33,8 +33,7 @@ const SignupScreen = ({ navigation, route }) => {
       username: username,
       email: email,
       phone: phone,
-      password: password,
-      typeUser: typeUser,
+      typeUser: 'customer',
       photo: 'https://picsum.photos/200/300',
     }
     options = {
@@ -54,7 +53,7 @@ const SignupScreen = ({ navigation, route }) => {
 
     });
   }
-
+ 
   const signup = async () => {
     if (username === '') {
       alert('Please enter a username');
@@ -70,27 +69,30 @@ const SignupScreen = ({ navigation, route }) => {
           console.log('User account created!');
           const user = userCredential.user;
           const uid = user.uid;
-          addUser(uid);
+         
           await sendEmailVerification(user)
             .then(
               () => {
+                console.log('Email verification sent!');
                 setUsername('');
                 setEmail('');
                 setPassword('');
                 setconfirmPassword('');
-               
-                if (typeUser === 'customer') {
-                  navigation.navigate('LoginScreen');
-                } else {
-                  navigation.navigate('DriverApplicationScreen');
-                }
-              })
-            .catch(
+                setPhone('');
+
+           }).catch(
               (error) => {
                 console.error('Error sending verification email:', error);
               })
-        })
-      .catch((error) => {
+
+        if (typeUser === 'customer') {
+          navigation.navigate('LoginScreen');
+          addCustomer(uid);      
+
+        }else if(typeUser === 'driver'){
+          navigation.navigate('DriverApplicationScreen', {uid: uid, username, email: email, phone: phone});
+        }
+      }).catch((error) => {
         if (error.code === 'auth/email-already-in-use') {
           alert('Email already in use');
         }else if (error.code === 'auth/invalid-email') {

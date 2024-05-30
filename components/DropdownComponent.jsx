@@ -53,8 +53,8 @@ import React, { useState } from 'react';
     
     dropdown:  {
         height: 40,
-        borderWidth: 1,
-        borderColor: '#ccc',
+        borderBottomWidth: 1,
+        borderColor: 'black',
         borderRadius: 5,
         paddingHorizontal: 10,
         marginBottom: 20,
@@ -66,7 +66,8 @@ import React, { useState } from 'react';
     },
    
     placeholderStyle: {
-      fontSize: 16,
+      fontSize: 14,
+      color: '#999'
     },
     selectedTextStyle: {
       fontSize: 16,

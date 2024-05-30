@@ -27,6 +27,10 @@ import { useNavigation } from '@react-navigation/native';
 import NotFound from './screens/NotFound';
 import { UserContext } from './context/UserContext';
 import { ReservationProvider } from './context/ReservationContext';
+import ClientDetailsScreen from './screens/ClientDetailsScreen';
+import DriverDetailsScreen from './screens/DriverDetails';
+import AdminDashboard from './screens/adminScreens/AdminDashboard';
+import ApplicationDetails from './screens/adminScreens/ApplicationDetails';
 
 const HomePage = () => {
   const Tab = createBottomTabNavigator();
@@ -40,12 +44,13 @@ const HomePage = () => {
         .then(response => response.json())
         .then(data => {
           setUser(data);
-        })
+        }) 
 
     }
     if (auth.currentUser != null) {
       const uid = auth.currentUser.uid
-      getUser(uid);
+      console.log('fetching the user from db....')
+      getUser(uid); 
     }
   }, []);
 
@@ -68,7 +73,7 @@ const HomePage = () => {
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const { reservationDetails } = response.notification.request.content.data;
-      console.log('reservationDetails', reservationDetails)
+     
       const currentTime = new Date();
       const timeElapsed = (currentTime - notificationReceivedTime.current) / 1000;
 
@@ -84,7 +89,7 @@ const HomePage = () => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-
+  
   return (
     <Tab.Navigator
       initialRouteName='Home'
@@ -115,7 +120,7 @@ const HomePage = () => {
         },
         headerShown: true,
       })}>
-
+     
 
       {/* tab screeeeeens !!! */}
       <Tab.Screen
@@ -198,6 +203,24 @@ function App() {
                   height: 0,
                 },
               }} />
+              <Stack.Screen
+              name="DriverApplicationScreen"
+              component={DriverApplicationScreen}
+              options={{
+                title: 'Application Form',
+                headerStyle: {
+                  elevation: 0,
+                },
+              }} />
+            <Stack.Screen
+              name="AddTaxiScreen"
+              component={AddTaxiScreen}
+              options={{
+                title: 'Taxi Informations',
+                headerStyle: {
+                  elevation: 0,
+                },
+              }} />
             <Stack.Screen
               name="LoginScreen"
               component={LoginScreen}
@@ -219,23 +242,18 @@ function App() {
                 },
               }} />
             <Stack.Screen
-              name="DriverApplicationScreen"
-              component={DriverApplicationScreen}
+              name="AdminDashboard"
+              component={AdminDashboard}
               options={{
-                title: 'Application Form',
-                headerStyle: {
-                  elevation: 0,
-                },
+                headerShown: false,
               }} />
             <Stack.Screen
-              name="AddTaxiScreen"
-              component={AddTaxiScreen}
+              name="ApplicationDetails"
+              component={ApplicationDetails}
               options={{
-                title: 'Taxi Informations',
-                headerStyle: {
-                  elevation: 0,
-                },
+                headerShown: false,
               }} />
+            
 
             <Stack.Screen
               name="HomePage"
@@ -301,6 +319,18 @@ function App() {
             <Stack.Screen
               name="Not Found"
               component={NotFound}
+              options={{
+                headerShown: false,
+              }} />
+            <Stack.Screen
+              name="ClientInfos"
+              component={ClientDetailsScreen}
+              options={{
+                headerShown: false,
+              }} />
+            <Stack.Screen
+              name="DriverInfos"
+              component={DriverDetailsScreen}
               options={{
                 headerShown: false,
               }} />

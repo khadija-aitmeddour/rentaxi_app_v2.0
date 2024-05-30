@@ -15,7 +15,7 @@ export const ReservationProvider = ({ children }) => {
     price: 0,
     taxiType: 'classic',
     status : '',
-    timeElapsed: 0
+    timeElapsed: 0,
     
 
     

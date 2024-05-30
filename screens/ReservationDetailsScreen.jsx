@@ -1,52 +1,93 @@
-import React, {useState, useEffect} from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Image, BackHandler } from 'react-native';
 import io from 'socket.io-client';
+import { UserContext } from '../context/UserContext';
 
 const socket = io('http://192.168.0.119:3001');
 
-export default function ReservationDetails({ route }) {
+export default function ReservationDetails({ navigation, route }) {
   const { reservationDetails } = route.params;
   const [currentRequest, setCurrentRequest] = useState(null);
+  const { user } = useContext(UserContext);
 
   useEffect(() => {
-    socket.emit('registerDriver', 'driver1');
+    const getActiveDrivers = async () => {
+      const endpoint = 'http://192.168.0.119:3000/taxis/active';
+      try {
+        const response = await fetch(endpoint);
+        const data = await response.json();
+        const activeDriverUids = data.map(driver => driver.uid);
+        console.log(activeDriverUids);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getActiveDrivers();
+
+    socket.emit('registerDriver', user.uid);
 
     socket.on('driverRequest', (request) => {
       console.log('Received driver request:', request);
       setCurrentRequest(request);
-      console.log('heeeee-------------------',currentRequest);
     });
 
-    return () => { 
+    return () => {
       socket.off('driverRequest');
     };
-  }, []);
+  }, [user.uid]);
+
+  useEffect(() => {
+    const onBackPress = () => {
+      navigation.navigate('Home');
+      return true;
+    };
+
+    BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+    };
+  }, [navigation]);
+
   const handleAccept = () => {
-    if (currentRequest) {
+   
       const response = {
         clientId: currentRequest.clientId,
+        uid: user.uid,
         accepted: true,
       };
+      console.log('Accepted request:', response);
       socket.emit('driverResponse', response);
-      setCurrentRequest(null); 
-    }
+      navigation.navigate('ClientInfos', currentRequest);
+    
   };
 
   const handleDecline = () => {
-
-    console.log('Reservation declined');
+    if (currentRequest) {
+      const response = {
+        clientId: currentRequest.clientId,
+        uid: user.uid,
+        accepted: false,
+      };
+      socket.emit('driverResponse', response);
+      setCurrentRequest(null);
+    }
+    navigation.goBack();
   };
-  console.log(reservationDetails);
+
   return (
     <View style={styles.container}>
+      {currentRequest && currentRequest.clientId ? (
+        <>
       <View style={styles.profileContainer}>
+      
         <Image
           source={{ uri: reservationDetails.photo }}
           style={styles.profileImage}
           resizeMode="cover"
         />
         <Text style={styles.username}>{reservationDetails.username}</Text>
-        <Text style={{ fontSize: 14, color: '#333', paddingTop: 5 }}> is requesting your services !</Text>
+        <Text style={{ fontSize: 14, color: '#333', paddingTop: 5 }}>is requesting your services!</Text>
       </View>
       <View>
         <Text style={styles.title}>Reservation Details</Text>
@@ -66,16 +107,20 @@ export default function ReservationDetails({ route }) {
           <Text style={styles.label}>Calculated Price</Text>
           <Text style={styles.value}>{reservationDetails.price} DZD</Text>
         </View>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.declineButton} onPress={handleDecline}>
-            <Text style={styles.buttonText}>Decline</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
-            <Text style={styles.buttonText}>Accept</Text>
-          </TouchableOpacity>
-        </View>
-      
+      </View>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.declineButton} onPress={handleDecline}>
+          <Text style={styles.buttonText}>Decline</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity style={styles.acceptButton} onPress={handleAccept}>
+          <Text style={styles.buttonText}>Accept</Text>
+        </TouchableOpacity>
+      </View>
+        </>
+        ) : (
+          <ActivityIndicator style={{alignSelf:'center'}} size="large" color="#FFDC1C" />
+        )}
     </View>
   );
 }
@@ -145,7 +190,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     position: 'absolute',
     bottom: 30,
-    alignSelf: 'center'
+    alignSelf: 'center',
   },
   acceptButton: {
     backgroundColor: '#4CAF50',

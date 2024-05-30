@@ -3,18 +3,65 @@ import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'reac
 import { pickPdf, pickImage } from '../components/common_functions';
 import Icon from 'react-native-vector-icons/Ionicons';
 
-const AddTaxiScreen = () => {
+const AddTaxiScreen = ({navigation, route}) => {
     const [licensePlate, setLicensePlate] = useState('');
     const [brand, setBrand] = useState('');
     const [model, setModel] = useState('');
     const [year, setYear] = useState('');
     const [color, setColor] = useState('');
     const [seats, setSeats] = useState('');
-    const [pdf, setPdf] = useState(null);
-    const [taxiImage, setTaxiImage] = useState(null);
+    const [taxiDocs, setTaxiDocs] = useState(null);
+    const [taxiPhoto, setTaxiPhoto] = useState(null);
+    const  { uid, email, username, phone, fullName, cardIdNumber, drivingLicencePicture, nationalCardPicture, taxiLicencePicture, carnetDePlacePDF } = route.params;
+    
 
-    const handleSignup = () => {
-        // Handle signup process with the collected data
+    function sendApplication(uid) {
+       
+        const endpoint = "http://192.168.0.119:3000/applications";
+        const user = {
+            uid: uid,
+            username: username,
+            fullName: fullName, 
+            email: email,
+            phone: phone,
+            photo: 'https://picsum.photos/200/300',
+           
+            cardIdNumber: cardIdNumber,                 
+            drivingLicencePicture: drivingLicencePicture,
+            nationalCardPicture: nationalCardPicture,   
+            taxiLicencePicture: taxiLicencePicture,    
+            carnetDePlacePDF: carnetDePlacePDF,         
+        
+            taxiCode: licensePlate,
+            brand: brand,
+            model: model,
+            year: year,
+            color: color,
+            seats: seats,
+            carPaper: taxiDocs,         
+            taxiPhoto: taxiPhoto        
+        
+        }
+        options = {
+          method: 'POST',
+          mode: "cors",
+          headers: {
+            'Content-Type': 'application/json',
+    
+          },
+          body: JSON.stringify(user),
+        }
+    
+        fetch(endpoint, options).then(response => {
+          if (response.ok) {
+            console.log("Application sent successfully!");
+          }
+    
+        });
+      }
+    const handleSignup = async () => {
+       await sendApplication(uid);
+       navigation.navigate('LoginScreen');
     };
 
 
@@ -75,25 +122,25 @@ const AddTaxiScreen = () => {
                 <TouchableOpacity 
                  onPress={async() => {
                     const pdf = await pickPdf();
-                    setPdf(pdf);
+                    setTaxiDocs(pdf);
                   }} 
                 style={styles.button}>
                     <Text style={styles.buttonText}>Upload PDF</Text>
                     <Image source={require('../images/pdf.png')} style={{ width: 22, height: 22 }} />
                 </TouchableOpacity>
-                {pdf && <Text style={styles.uploadedText}>PDF Uploaded: {pdf}</Text>}
+                {taxiDocs && <Text style={styles.uploadedText}>PDF Uploaded: {taxiDocs}</Text>}
 
                 
                 <TouchableOpacity 
                   onPress={async() => {
                     const img = await pickImage();  
-                    setTaxiImage(img);
+                    setTaxiPhoto(img);
                 }} 
                   style={styles.button}>
                   <Text style={styles.buttonText}>Upload Taxi Photo</Text>
                   <Icon name={'image'} size={20} color={'#000'} />
                 </TouchableOpacity>
-                {taxiImage && <Image source={{ uri: taxiImage }} style={styles.image} />}
+                {taxiPhoto && <Image source={{ uri: taxiPhoto }} style={styles.image} />}
                 
                 <TouchableOpacity onPress={handleSignup} style={[styles.button, { backgroundColor: '#FFDC1C', marginTop:30, borderBottomWidth: 0, justifyContent: 'center' }]}>
                     <Text style={styles.saveButtonText}>Send Application</Text>

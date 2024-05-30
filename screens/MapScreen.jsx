@@ -1,3 +1,4 @@
+
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
 import MapboxGL from '@rnmapbox/maps'
@@ -6,11 +7,12 @@ import { useNavigation } from '@react-navigation/native';
 import { sendPushNotification, registerForPushNotificationsAsync } from '../hooks/usePushNotifications';
 import { UserContext } from '../context/UserContext';
 import { ReservationContext } from '../context/ReservationContext';
-import io from 'socket.io-client';
+
+
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-const MapScreen = ({ route }) => {
+const MapScreen = () => {
   
   const {user, setUser} = useContext(UserContext);
   const [username, setUsername] = useState(user.username);
@@ -29,8 +31,10 @@ const MapScreen = ({ route }) => {
   const [selectedTaxiType, setselectedTaxiType] = useState('');
   const [price, setPrice] = useState(0);
   const { myPosition, destination, positionCoords, destinationCoords, distance, myRoute } = reservation;
-
-  //const distance = myRoute ? parseFloat(myRoute.distance / 1000).toFixed(0) : 0; //get the distance if the route is not null, transform to km and round it 
+ 
+   const midpointIndex = Math.floor(myRoute.geometry.coordinates.length / 2);
+  const midpoint = myRoute.geometry.coordinates[midpointIndex];
+  
   useEffect(() => {
     setPriceClassic(distance * 40);
     setPriceVIP(distance * 60);
@@ -39,19 +43,7 @@ const MapScreen = ({ route }) => {
     selectedTaxiType == 'Classic' ? setPrice(priceClassic) : setPrice(priceVIP);
   }, [selectedTaxiType]);
   
-  const socket = io('http://192.168.0.119:3001');
 
-  const sendRequest = async() => {
-  socket.emit('clientRequest', { clientId: socket.id });
-  console.log('Request sent');
-  setReservation({...reservation, status: 'pending'});
-  await sendPushNotification("ExponentPushToken[sLglZIFI0brGRkTQK018jd]", 'Ride Request!', 'A new ride request has been made!', {username, photo, myPosition, destination, distance, price });
-  selectedTaxiType ? navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, distance, username, photo}) : console.log('Please select a taxi type');
-
-};
-  socket.on('driverResponse', (response) => {
-      response.accepted ? setReservation({...reservation, status: 'accepted'}) : setReservation({...reservation, status: 'rejected'});
-  });
 
   return (
     <View style={{ flex: 1 }}>
@@ -60,7 +52,7 @@ const MapScreen = ({ route }) => {
         styleURL={MapboxGL.StyleURL.Street}
       >
         <MapboxGL.Camera
-          zoomLevel={8}
+          zoomLevel={7}
           centerCoordinate={positionCoords}
           animationMode="flyTo"
           animationDuration={2000}
@@ -93,6 +85,38 @@ const MapScreen = ({ route }) => {
             <MapboxGL.LineLayer id="routeFill" style={{ lineColor: '#3d85c6', lineWidth: 5 }} />
           </MapboxGL.ShapeSource>
         )}
+
+        
+{midpoint && (
+          <MapboxGL.ShapeSource
+            id="midpointSource"
+            shape={{
+              type: 'FeatureCollection',
+              features: [{
+                type: 'Feature',
+                geometry: {
+                  type: 'Point',
+                  coordinates: midpoint
+                },
+                properties: {
+                  title: `Distance: ${distance} km`
+                }
+              }]
+            }}
+          >
+            <MapboxGL.SymbolLayer
+              id="midpointLabel"
+              style={{
+                textField: '{title}',
+                textSize: 13,
+                textColor: '#000',
+                textHaloColor: '#fff',
+                textHaloWidth: 5,
+                textOffset: [0, 1], // Adjust the position of the label
+              }}
+            />
+          </MapboxGL.ShapeSource>
+        )}
       </MapboxGL.MapView>
       <View style={styles.panel}>
         <Text style={styles.panelText}>Choose your Ride</Text>
@@ -122,13 +146,14 @@ const MapScreen = ({ route }) => {
           <TouchableOpacity
             style={styles.requestBtn}
             onPress={async() => {
-              
-              sendRequest();
+              setReservation({...reservation, status: 'pending'});
+              selectedTaxiType ? navigation.navigate('Request', { selectedTaxiType, myPosition, destination, price, distance, username, photo}) : alert('Please select a taxi type');
             }
               }>
             <Text style={styles.buttonText}>Request Now</Text>
           </TouchableOpacity>
         </View>
+        
     </View>
   );
 

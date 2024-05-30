@@ -1,56 +1,82 @@
-import { View, Text, TouchableOpacity, Modal, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, StyleSheet, ActivityIndicator, BackHandler } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect } from '@react-navigation/native';
 import { sendPushNotification } from '../hooks/usePushNotifications';
 import io from 'socket.io-client';
 import { ReservationContext } from '../context/ReservationContext';
+import { UserContext } from '../context/UserContext';
 
 const PendingRequest = ({ navigation, route }) => {
     const socket = io('http://192.168.0.119:3001');
-   
+
     const { username, photo, selectedTaxiType, myPosition, destination, distance, price } = route.params;
-    const [countdown, setCountdown] = useState(10);
+    const [countdown, setCountdown] = useState(0);
     const [loadVisible, setLoadVisible] = useState(true);
     const [message, setMessage] = useState('Contacting the nearest driver');
     const [counter, setCounter] = useState(0);
+    const [active, setActive] = useState(true);
 
     const { reservation, setReservation } = useContext(ReservationContext);
-    const [status, setStatus] = useState(reservation.status);
+    const { user, setUser } = useContext(UserContext);
+
+    const [status, setStatus] = useState('idle');
+    const [driverUid, setDriverUid] = useState(null);
+    // useEffect(() => {
+    //     if(counter === 0){
+    //     sendRequest();
+    //     }
+    // }, [counter]);
 
     useEffect(() => {
         setStatus(reservation.status);
         console.log('Status: ', status);
-    }, [status, reservation.status]);
+    }, [reservation.status]);
 
-    const sendRequest = () => {
-        socket.emit('clientRequest', { clientId: socket.id });
+    const sendRequest = async () => {
+        await socket.emit('clientRequest', { uid: user.uid, clientId: socket.id });
         console.log('Request sent');
         setReservation({ ...reservation, status: 'pending' });
-        sendPushNotification("ExponentPushToken[sLglZIFI0brGRkTQK018jd]", 'Ride Request!', 'A new ride request has been made!', { username, photo, myPosition, destination, distance, price });
+        sendPushNotification("ExponentPushToken[VhhgZ8IrAoduMGLjc9NGxQ]", 'Ride Request!', 'A new ride request has been made!', { username, photo, myPosition, destination, distance, price });
 
     };
     socket.on('driverResponse', (response) => {
-        console.log(response);
+        setDriverUid(response.uid);
+        console.log('Driver response:', response);
         if (response.accepted) {
             setLoadVisible(false);
             setReservation({ ...reservation, status: 'accepted' });
+        } else if (!response.accepted) {
+            setReservation({ ...reservation, status: 'rejected' });
         }
     });
     useEffect(() => {
+        setStatus(reservation.status);
         if (status === 'accepted') {
-            setLoadVisible(false);
+            //setLoadVisible(false);
+            setReservation({ ...reservation, status: 'idle' });
+            setActive(false);
+            navigation.navigate('DriverInfos', { driverUid });
         }
     }, [status]);
 
 
     useEffect(() => {
-        
+
         const timer = setTimeout(() => {
             setCounter(counter + 1);
-            setCountdown(10);
-            setMessage(counter <= 3 ? 'Contacting another one...' : 'Sorry, we\'re doing our best');
-            if(status !== 'accepted'){
-                sendRequest();
+            if(counter < 2){
+                setMessage(counter < 3 ? 'Contacting the nearest driver' : 'Contacting another one...');
+                setCountdown(5);
+
+            }else{
+                setMessage(counter > 5 ? 'Sorry, we\'re doing our best' : 'Contacting the nearest driver');
+                setCountdown(15);
+            }
+            if (active) {
+                if(counter < 2) {
+                    sendRequest();
+                }
+               
             }
         }, countdown * 1000);
 
@@ -83,30 +109,53 @@ const PendingRequest = ({ navigation, route }) => {
             }
             )
     }
+    
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        navigation.navigate('Home');
+        return true; // Prevent default behavior
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      };
+    }, [navigation])
+  );
 
     return (
-        <Modal
-            visible={loadVisible}
-            animationType="slide"
-            transparent={true}
-        >
+        <>
             <View style={styles.container}>
-                <View style={styles.panel}>
-                    <Text style={styles.panelText}>{message}</Text>
-                    <Text style={styles.panelText}>Please wait...</Text>
-                    <Text style={styles.panelText}> {countdown} seconds</Text>
-                    <Text style={{ paddingTop: 10 }}>{myPosition}</Text>
-                    <Text>{destination}</Text>
-                    <Text style={{ fontWeight: 'bold' }}>{selectedTaxiType}</Text>
-                    <Text style={{ fontWeight: 'bold', color: "#1bd719", padding: 10 }}>
-                        {price} DZD
-                    </Text>
-                    <TouchableOpacity style={styles.cancelButton} onPress={cancelRequest}>
-                        <Text style={styles.cancelButtonText}>Cancel</Text>
-                    </TouchableOpacity>
+
+                <Text style={styles.title}>Request Expired</Text>
+           
+            <Modal
+                visible={loadVisible}
+                animationType="slide"
+                transparent={true}
+            >
+                <View style={styles.container}>
+                    <View style={styles.panel}>
+                        <Text style={styles.panelText}>{message}</Text>
+                        <Text style={styles.panelText}>Please wait...</Text>
+                        <ActivityIndicator size="large" color="#FFDC1C" />
+                        {/* <Text style={styles.panelText}> {countdown} seconds</Text> */}
+                        <Text style={{ paddingTop: 10 }}>{myPosition}</Text>
+                        <Text>{destination}</Text>
+                        <Text style={{ fontWeight: 'bold' }}>{selectedTaxiType}</Text>
+                        <Text style={{ fontWeight: 'bold', color: "#1bd719", padding: 10 }}>
+                            {price} DZD
+                        </Text>
+                        <TouchableOpacity style={styles.cancelButton} onPress={cancelRequest}>
+                            <Text style={styles.cancelButtonText}>Cancel</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
+            </Modal>
             </View>
-        </Modal>
+        </>
     );
 };
 
@@ -149,4 +198,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
     },
+      
+      title: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        color: '#333',
+      },
 });
