@@ -1,9 +1,10 @@
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Alert } from 'react-native';
-import { auth } from '../config';
+import { auth } from '../../config';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { ScrollView } from 'react-native-gesture-handler';
+import { localhost } from '../../localhostConfig';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
@@ -11,8 +12,7 @@ const LoginScreen = ({ navigation }) => {
   const [secure, setSecure] = useState(true);
 
   async function isRegistered(uid) {
-    console.log(uid)
-    const endpoint = `http://192.168.0.119:3000/users/${uid}`
+    const endpoint = `${localhost}/users/${uid}`
 
     const response = await fetch(endpoint)
     if (response.ok) {
@@ -25,7 +25,8 @@ const LoginScreen = ({ navigation }) => {
 
 
   function signin() {
-    if(email === 'admin' || password === '') {
+    if(email === 'admin' && password === '') {
+      setEmail('');
       navigation.navigate('AdminDashboard');
       return;
     }
@@ -34,20 +35,28 @@ const LoginScreen = ({ navigation }) => {
         async () => {
           await auth.onAuthStateChanged(async (userCredential) => {
             if (userCredential) {
+              
               console.log(userCredential.uid)
+            
               await isRegistered(userCredential.uid)
                 .then(response => {
                   if (response.size === 0) {
+                   
                     Alert.alert(
                       '\t\t\tApplication still pending... ',
                       '\nAn Email will be sent to you once the \n\t\t\t\t\tApplication approved\n\n\t\tThank you for your patience!',
 
-                      [{ text: 'I understand', onPress: () => console.log('OK Pressed') }],
+                      [{ text: 'I understand', onPress: () => {
+                        setEmail('');
+                        setPassword('');
+                      
+                      } }],
                       { cancelable: true }
                     );
                     return;
                   }
                   else {
+                    
                     const { emailVerified } = userCredential;
                     if (emailVerified) {
                       setEmail('');
@@ -58,6 +67,8 @@ const LoginScreen = ({ navigation }) => {
                       alert('Please verify your email');
                     }
                   }
+                }).catch(error => {
+                 alert("Can't connect to server");
                 });
 
             }
@@ -70,9 +81,6 @@ const LoginScreen = ({ navigation }) => {
 
   }
 
-  const handleForgotPassword = () => {
-    navigation.navigate('HomePage');
-  };
 
   const handleVisibilityPassword = () => {
     setSecure(!secure);
@@ -83,11 +91,26 @@ const LoginScreen = ({ navigation }) => {
     setPassword('');
     navigation.navigate('SignInTypeScreen');
   };
+  
+  const handleForgotPassword = async () => {
+    if (!email) {
+      Alert.alert('Error', 'Please enter your email.');
+      return;
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email);
+      Alert.alert('Success', 'Password reset email sent. Please check your inbox.');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', error.message);
+    }
+  };
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
       <Image
-        source={require('../images/logo.png')}
+        source={require('../../images/logo.png')}
         style={{ height: 65, width: 65 }}
 
       />

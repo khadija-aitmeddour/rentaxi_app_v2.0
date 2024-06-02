@@ -1,10 +1,10 @@
 import { createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
-import { auth } from '../config';
+import { auth } from '../../config';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { set } from 'firebase/database';
 import { ScrollView } from 'react-native-gesture-handler';
+import { localhost } from '../../localhostConfig';
 
 const SignupScreen = ({ navigation, route }) => {
   const [userUid, setUserUid] = useState('');
@@ -19,15 +19,8 @@ const SignupScreen = ({ navigation, route }) => {
   const { typeUser } = route.params;
 
   function addCustomer(uid) {
-    if (password.length < 6) {
-      alert("Password must be at least 6 characters");
-      return;
-    }
-    if (password != confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
-    const endpoint = "http://192.168.0.119:3000/users";
+    
+    const endpoint = `${localhost}/users`;
     const user = {
       uid: uid,
       username: username,
@@ -63,6 +56,15 @@ const SignupScreen = ({ navigation, route }) => {
       alert('Passwords do not match');
       return;
     }
+     if (phone.length != 10) {
+      alert("Phone number must be 10 digits");
+      return;
+    }
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters");
+      return;
+    }
+   
     await createUserWithEmailAndPassword(auth, email, password)
       .then(
         async (userCredential) => {
@@ -113,7 +115,7 @@ const SignupScreen = ({ navigation, route }) => {
   return ( 
   <ScrollView contentContainerStyle={styles.container}> 
       <Image
-        source={require('../images/logo.png')}
+        source={require('../../images/logo.png')}
         style={{ height: 65, width: 65 }}
 
       />

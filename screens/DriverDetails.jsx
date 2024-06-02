@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Image, Linking, TouchableOpacity, BackHandler } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import { localhost } from '../localhostConfig';
 
 const DriverDetailsScreen = ({ route }) => {
   const { driverUid } = route.params;
@@ -12,15 +13,13 @@ const DriverDetailsScreen = ({ route }) => {
   };
 
   const cancelReservation = () => {
-    // Logic to cancel the reservation goes here
     console.log('Reservation cancelled');
-    // Navigate back to reservations screen
     navigation.navigate('Home');
   };
 
   useEffect(() => {
     const getClientInfo = async () => {
-      const endpoint = `http://192.168.0.119:3000/users/${driverUid}`;
+      const endpoint = `${localhost}/users/${driverUid}`;
       await fetch(endpoint)
         .then(response => response.json())
         .then(data => {
@@ -35,7 +34,7 @@ const DriverDetailsScreen = ({ route }) => {
     React.useCallback(() => {
       const onBackPress = () => {
         navigation.navigate('Home');
-        return true; // Prevent default behavior
+        return true; 
       };
 
       BackHandler.addEventListener('hardwareBackPress', onBackPress);

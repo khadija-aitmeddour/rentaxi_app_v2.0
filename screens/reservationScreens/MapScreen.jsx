@@ -2,11 +2,11 @@
 import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState, useContext } from 'react'
 import MapboxGL from '@rnmapbox/maps'
-import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
+import { MAPBOX_ACCESS_TOKEN } from '../../mapboxConfig';
 import { useNavigation } from '@react-navigation/native';
-import { sendPushNotification, registerForPushNotificationsAsync } from '../hooks/usePushNotifications';
-import { UserContext } from '../context/UserContext';
-import { ReservationContext } from '../context/ReservationContext';
+import { sendPushNotification, registerForPushNotificationsAsync } from '../../hooks/usePushNotifications';
+import { UserContext } from '../../context/UserContext';
+import { ReservationContext } from '../../context/ReservationContext';
 
 
 
@@ -31,8 +31,8 @@ const MapScreen = () => {
   const [selectedTaxiType, setselectedTaxiType] = useState('');
   const [price, setPrice] = useState(0);
   const { myPosition, destination, positionCoords, destinationCoords, distance, myRoute } = reservation;
- 
-   const midpointIndex = Math.floor(myRoute.geometry.coordinates.length / 2);
+  
+  const midpointIndex = Math.floor(myRoute.geometry.coordinates.length / 2);
   const midpoint = myRoute.geometry.coordinates[midpointIndex];
   
   useEffect(() => {
@@ -123,7 +123,7 @@ const MapScreen = () => {
         <TouchableOpacity style={[styles.button, selectedTaxiType == 'Classic' && styles.selectedButton]} onPress={() => {setselectedTaxiType('Classic')}}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center'}}>
             <Image
-              source={require('../images/classic.png')}
+              source={require('../../images/classic.png')}
             />
             <Text style={styles.buttonText}>Classic</Text>
           </View>
@@ -133,7 +133,7 @@ const MapScreen = () => {
         <TouchableOpacity style={[styles.button, selectedTaxiType == 'Comfort' && styles.selectedButton]} onPress={() => {setselectedTaxiType('Comfort')}}>
           <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
             <Image
-              source={require('../images/comfort.png')}
+              source={require('../../images/comfort.png')}
             />
             <Text style={styles.buttonText}>Comfort</Text>
           </View>

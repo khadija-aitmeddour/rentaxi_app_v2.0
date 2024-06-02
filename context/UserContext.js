@@ -7,6 +7,7 @@ export const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState({
     uid: '',
+    typeUser: 'guest',
     username: 'guest',
     fullName: '',
     photo: 'https://picsum.photos/200/300',

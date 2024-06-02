@@ -2,25 +2,24 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/Ionicons';
-import LocalInput from './screens/LocationInput';
-import MapScreen from './screens/MapScreen';
+import LocalInput from './screens/reservationScreens/LocationInput';
+import MapScreen from './screens/reservationScreens/MapScreen';
 import ReservationScreen from './screens/ReservationScreen';
-import PendingRequest from './screens/PendingRequest';
-import SignupScreen from './screens/SignupScreen';
+import PendingRequest from './screens/reservationScreens/PendingRequest';
+import SignupScreen from './screens/authentificationScreens/SignupScreen';
 import Home from './screens/Home';
 import { useContext, useEffect, useState, useRef } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from './config';
-import SignInTypeScreen from './screens/SignInTypeScreen';
+import SignInTypeScreen from './screens/authentificationScreens/SignInTypeScreen';
 import GetStarted from './screens/GetStarted';
-import LoginScreen from './screens/LoginScreen';
-import DriverApplicationScreen from './screens/DriverApplicationScreen';
-import AddTaxiScreen from './screens/AddTaxiScreen';
+import LoginScreen from './screens/authentificationScreens/LoginScreen';
+import DriverApplicationScreen from './screens/authentificationScreens/DriverApplicationScreen';
+import AddTaxiScreen from './screens/authentificationScreens/AddTaxiScreen';
 import { UserProvider } from './context/UserContext';
 import Profile from './screens/Profile';
 import MenuScreen from './screens/MenuScreen';
-import HomeDriver from './screens/HomeDriver';
-import ReservationDetailsScreen from './screens/ReservationDetailsScreen';
+import ReservationDetailsScreen from './screens/reservationScreens/ReservationDetailsScreen';
 import * as Notifications from 'expo-notifications';
 import { registerForPushNotificationsAsync } from './hooks/usePushNotifications';
 import { useNavigation } from '@react-navigation/native';
@@ -31,6 +30,9 @@ import ClientDetailsScreen from './screens/ClientDetailsScreen';
 import DriverDetailsScreen from './screens/DriverDetails';
 import AdminDashboard from './screens/adminScreens/AdminDashboard';
 import ApplicationDetails from './screens/adminScreens/ApplicationDetails';
+import { localhost } from './localhostConfig';
+import ReservationManagmntScreen from './screens/reservationScreens/ReservationManagmntScreen';
+
 
 const HomePage = () => {
   const Tab = createBottomTabNavigator();
@@ -38,19 +40,22 @@ const HomePage = () => {
 
   useEffect(() => {
     const getUser = async (uid) => {
-      const endpoint = `http://192.168.0.119:3000/users/${uid}`
+      const endpoint = `${localhost}/users/${uid}`
+      console.log(endpoint)
 
       await fetch(endpoint)
         .then(response => response.json())
         .then(data => {
           setUser(data);
-        }) 
+          console.log('user fetched successfully')
+
+        })
 
     }
     if (auth.currentUser != null) {
       const uid = auth.currentUser.uid
       console.log('fetching the user from db....')
-      getUser(uid); 
+      getUser(uid);
     }
   }, []);
 
@@ -73,7 +78,7 @@ const HomePage = () => {
 
     responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
       const { reservationDetails } = response.notification.request.content.data;
-     
+
       const currentTime = new Date();
       const timeElapsed = (currentTime - notificationReceivedTime.current) / 1000;
 
@@ -89,7 +94,7 @@ const HomePage = () => {
       Notifications.removeNotificationSubscription(responseListener.current);
     };
   }, []);
-  
+
   return (
     <Tab.Navigator
       initialRouteName='Home'
@@ -103,8 +108,8 @@ const HomePage = () => {
             iconName = 'add';
           } else if (route.name === 'Menu') {
             iconName = 'menu';
-          } else if (route.name === 'Notifications') {
-            iconName = 'notifications';
+          } else if (route.name === 'Reservations') {
+            iconName = 'book';
           }
 
           return <Icon name={iconName} size={size} color={color} />;
@@ -120,23 +125,23 @@ const HomePage = () => {
         },
         headerShown: true,
       })}>
-     
 
-      {/* tab screeeeeens !!! */}
+
+
+
       <Tab.Screen
         name="Home"
         component={Home}
         options={{ headerShown: false }}
         initialParams={user}
-
       />
       <Tab.Screen
         name="Book Taxi"
         component={ReservationScreen}
         options={{ headerShown: false }} />
       <Tab.Screen
-        name="Notifications"
-        component={HomeDriver}
+        name="Reservations"
+        component={ReservationManagmntScreen}
         options={{ headerShown: false }} />
       <Tab.Screen
         name="Menu"
@@ -203,7 +208,7 @@ function App() {
                   height: 0,
                 },
               }} />
-              <Stack.Screen
+            <Stack.Screen
               name="DriverApplicationScreen"
               component={DriverApplicationScreen}
               options={{
@@ -253,7 +258,7 @@ function App() {
               options={{
                 headerShown: false,
               }} />
-            
+
 
             <Stack.Screen
               name="HomePage"

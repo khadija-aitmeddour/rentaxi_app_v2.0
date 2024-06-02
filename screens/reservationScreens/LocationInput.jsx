@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Keyboard, TextInput, StyleSheet, FlatList, Image, TouchableOpacity, Text, TouchableWithoutFeedback } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
+import { MAPBOX_ACCESS_TOKEN } from '../../mapboxConfig';
 import Geolocation from '@react-native-community/geolocation';
-import { calculateDistance } from '../components/common_functions';
-import { ReservationContext } from '../context/ReservationContext';
+import { calculateDistance } from '../../components/common_functions';
+import { ReservationContext } from '../../context/ReservationContext';
 
 
 const LocationInput = () => {
@@ -107,9 +107,6 @@ const LocationInput = () => {
 
   };
 
-  const handleOutsidePress = () => {
-    setShowSuggestions(0);
-  };
 
   useEffect(() => {
     console.log('My Position:', myPosition, '   ', positionCoords);
@@ -122,6 +119,8 @@ const LocationInput = () => {
         const {distance, route} = dist
         setMyRoute(route);
         setDistance(distance);
+        console.log('Distance:', distance);
+       
         
       })
       
@@ -178,11 +177,11 @@ const LocationInput = () => {
               getPlaceName(positionCoords);
               }}>
             <Image
-              source={require('../images/myPosition.png')}
+              source={require('../../images/myPosition.png')}
             />
             <Text style={styles.linkText}>Use My Current Location</Text>
           </TouchableOpacity>
-
+ 
         </View>
 
         <View style={{ padding: 20 }}>
@@ -199,7 +198,8 @@ const LocationInput = () => {
                 positionCoords: positionCoords,
                 destinationCoords: destinationCoords
               });
-              navigation.navigate('Map')
+              if(myRoute.geometry){
+              navigation.navigate('Map')}
             }}>
             <Text style={styles.buttonText}>Continue</Text>
           </TouchableOpacity>

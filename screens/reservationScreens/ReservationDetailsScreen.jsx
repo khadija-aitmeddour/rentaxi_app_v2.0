@@ -1,31 +1,61 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, TouchableOpacity, Image, BackHandler } from 'react-native';
 import io from 'socket.io-client';
-import { UserContext } from '../context/UserContext';
+import { UserContext } from '../../context/UserContext';
+import { localhost, webSocketServerURL } from '../../localhostConfig';
 
-const socket = io('http://192.168.0.119:3001');
+
+const socket = io(webSocketServerURL);
 
 export default function ReservationDetails({ navigation, route }) {
   const { reservationDetails } = route.params;
   const [currentRequest, setCurrentRequest] = useState(null);
   const { user } = useContext(UserContext);
+  const [taxiCode, setTaxiCode] = useState('');
 
   useEffect(() => {
-    const getActiveDrivers = async () => {
-      const endpoint = 'http://192.168.0.119:3000/taxis/active';
-      try {
-        const response = await fetch(endpoint);
-        const data = await response.json();
-        const activeDriverUids = data.map(driver => driver.uid);
-        console.log(activeDriverUids);
-      } catch (error) {
-        console.error(error);
-      }
+    const getTaxiCode = async () => {
+      const endpoint = `${localhost}/taxis/taxi/${user.uid}`;
+      await fetch(endpoint)
+        .then(response => response.json())
+        .then(data => {
+          setTaxiCode(data[0].taxiCode);
+        }).catch(error => console.log(error));
     };
-    getActiveDrivers();
+    getTaxiCode();
+  }, []);
+  
+  const saveReservation = async () => {
+    const endpoint = `${localhost}/reservations`;
+    const reservation = {
+      uid: currentRequest.uid,
+      taxiCode: taxiCode,
+      pickupLocation: reservationDetails.myPosition,
+      pickoffLocation: reservationDetails.destination,
+      distance: reservationDetails.distance,
+      price: reservationDetails.price,
+      taxiType: reservationDetails.selectedTaxiType,
+      status: 'pending',
+    };
 
+    await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(reservation),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Reservation saved:', data);
+      })
+      .catch(error => console.log(error));
+  };
+
+  useEffect(() => {
+    
     socket.emit('registerDriver', user.uid);
-
+    console.log('Registered driver:', user.uid);
     socket.on('driverRequest', (request) => {
       console.log('Received driver request:', request);
       setCurrentRequest(request);
@@ -35,7 +65,7 @@ export default function ReservationDetails({ navigation, route }) {
       socket.off('driverRequest');
     };
   }, [user.uid]);
-
+  
   useEffect(() => {
     const onBackPress = () => {
       navigation.navigate('Home');
@@ -48,9 +78,20 @@ export default function ReservationDetails({ navigation, route }) {
       BackHandler.removeEventListener('hardwareBackPress', onBackPress);
     };
   }, [navigation]);
+  
+  useEffect(() => {
+    socket.on('cancelNotification', (data) => {
+      console.log('Cancel notification received for client:', data.clientId);
+      navigation.navigate('Not Found');
+    });
 
-  const handleAccept = () => {
-   
+    return () => {
+      socket.off('cancelNotification');
+    };
+  }, [navigation]);
+
+  const handleAccept = async () => {
+    
       const response = {
         clientId: currentRequest.clientId,
         uid: user.uid,
@@ -58,6 +99,7 @@ export default function ReservationDetails({ navigation, route }) {
       };
       console.log('Accepted request:', response);
       socket.emit('driverResponse', response);
+      await saveReservation();
       navigation.navigate('ClientInfos', currentRequest);
     
   };

@@ -1,3 +1,4 @@
+import { localhost } from '../localhostConfig';
 import { MAPBOX_ACCESS_TOKEN } from '../mapboxConfig';
 import DocumentPicker from 'react-native-document-picker';
 
@@ -65,7 +66,7 @@ export const pickImage = async () => {
 
 export async function isRegistered(uid) {
     console.log(uid)
-    const endpoint = `http://192.168.0.119:3000/users/${uid}`
+    const endpoint = `${localhost}/users/${uid}`
 
     const response = await fetch(endpoint)
     if (response.ok) {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { pickPdf, pickImage } from '../components/common_functions';
+import { pickPdf, pickImage } from '../../components/common_functions';
 
 const DriverApplicationScreen = ({route}) => {
   const { uid, email, username, phone } = route.params;
@@ -15,6 +15,10 @@ const DriverApplicationScreen = ({route}) => {
   const navigation = useNavigation();
   
   const handleSubmit = () => {
+    if (!fullName || !cardIdNumber || !drivingLicencePicture || !nationalCardPicture || !carnetDePlacePDF) {
+      alert('Please fill all fields');
+      return;
+    }
    navigation.navigate('AddTaxiScreen', {uid, email, username, phone, fullName, cardIdNumber, drivingLicencePicture, nationalCardPicture, taxiLicencePicture, carnetDePlacePDF});
   };
 
@@ -75,7 +79,7 @@ const DriverApplicationScreen = ({route}) => {
             }} 
         style={styles.button}>
           <Text style={styles.buttonText}>Select Carnet De Place PDF</Text>
-          <Image source={require('../images/pdf.png')} style={{ width: 22, height: 22 }} />
+          <Image source={require('../../images/pdf.png')} style={{ width: 22, height: 22 }} />
         </TouchableOpacity>
         {carnetDePlacePDF && <Text style={styles.uploadedText}>PDF Uploaded: {carnetDePlacePDF}</Text>}
       </View>

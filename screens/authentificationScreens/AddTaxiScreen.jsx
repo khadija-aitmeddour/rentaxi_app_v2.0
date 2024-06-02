@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Image, ScrollView } from 'react-native';
-import { pickPdf, pickImage } from '../components/common_functions';
+import { pickPdf, pickImage } from '../../components/common_functions';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { localhost } from '../../localhostConfig';
 
 const AddTaxiScreen = ({navigation, route}) => {
     const [licensePlate, setLicensePlate] = useState('');
@@ -17,7 +18,7 @@ const AddTaxiScreen = ({navigation, route}) => {
 
     function sendApplication(uid) {
        
-        const endpoint = "http://192.168.0.119:3000/applications";
+        const endpoint = `${localhost}/applications`;
         const user = {
             uid: uid,
             username: username,
@@ -60,6 +61,10 @@ const AddTaxiScreen = ({navigation, route}) => {
         });
       }
     const handleSignup = async () => {
+        if(!licensePlate || !brand || !model || !year || !color || !seats || !taxiDocs || !taxiPhoto) {
+            alert('Please fill all the fields');
+            return;
+        }
        await sendApplication(uid);
        navigation.navigate('LoginScreen');
     };
@@ -126,7 +131,7 @@ const AddTaxiScreen = ({navigation, route}) => {
                   }} 
                 style={styles.button}>
                     <Text style={styles.buttonText}>Upload PDF</Text>
-                    <Image source={require('../images/pdf.png')} style={{ width: 22, height: 22 }} />
+                    <Image source={require('../../images/pdf.png')} style={{ width: 22, height: 22 }} />
                 </TouchableOpacity>
                 {taxiDocs && <Text style={styles.uploadedText}>PDF Uploaded: {taxiDocs}</Text>}
 

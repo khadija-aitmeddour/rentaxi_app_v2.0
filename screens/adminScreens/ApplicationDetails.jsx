@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, Modal, TouchableOpacity, RefreshControl } from 'react-native';
 import { Button, Card, Title, Paragraph } from 'react-native-paper';
+import { localhost } from '../../localhostConfig';
 
 const ApplicationDetails = ({ navigation, route }) => {
   const { application } = route.params;
@@ -44,7 +45,7 @@ const ApplicationDetails = ({ navigation, route }) => {
   };
   function addDriver() {
    
-    const endpoint = "http://192.168.0.119:3000/users";
+    const endpoint = `${localhost}/users`;
     const user = {
       uid: uid,
       username: username,
@@ -79,7 +80,7 @@ const ApplicationDetails = ({ navigation, route }) => {
     });
   }
   function addTaxi(){
-    const endpoint = "http://192.168.0.119:3000/taxis";
+    const endpoint = `${localhost}/taxis`;
     const taxi = {
       taxiCode: taxiCode,
       brand: brand,
@@ -108,7 +109,7 @@ const ApplicationDetails = ({ navigation, route }) => {
     });
 }
 function removeApplication(){
-  const endpoint = "http://192.168.0.119:3000/applications/"+uid;
+  const endpoint = `${localhost}/applications/${uid}`;
   options = {
     method: 'DELETE',
     mode: "cors",
@@ -201,8 +202,7 @@ function removeApplication(){
       <View style={styles.buttonContainer}>
         <Button mode="contained" onPress={()=>{}} style={styles.rejectButton}>Reject</Button>
         <Button mode="contained" onPress={()=>{
-          addDriver();
-          addTaxi();
+         approveApplication();
         }} style={styles.acceptButton}>Approve</Button>
       </View>
 
@@ -244,6 +244,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    alignSelf: 'center',
   },
   documentContainer: {
     flexDirection: 'row',

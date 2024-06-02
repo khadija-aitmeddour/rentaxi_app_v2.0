@@ -1,73 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl, Alert, TouchableOpacity } from 'react-native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, Image, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { set } from 'firebase/database';
-const AdminDashboard = () => {
-  const Tab = createBottomTabNavigator();
- 
-  
+import { localhost } from '../../localhostConfig';
 
-  return (
-    <Tab.Navigator
-      initialRouteName='Home'
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
 
-          if (route.name === 'Home') {
-            iconName = 'home';
-          } else if (route.name === 'Notifications') {
-            iconName = 'notifications';
-          }
 
-          return <Icon name={iconName} size={size} color={color} />;
-        },
-        tabBarActiveTintColor: 'black',
-        tabBarInactiveTintColor: 'gray',
-        tabBarStyle: {
-          display: 'flex',
-          paddingBottom: 5,
-          paddingTop: 5,
-          height: 55,
-          elevation: 5,
-        },
-        headerShown: true,
-      })}>
+const AdminDashboard = ({ navigation }) => {
 
-      <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{ headerShown: false }} />
-      <Tab.Screen
-        name="Notifications"
-        component={Notifications}
-        options={{ headerShown: false }} />
-
-    </Tab.Navigator>
-  );
-};
-
-const Home = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Admin Dashboard</Text>
-      
-         
-    </View>
-  );
-}
-
-const Notifications = ({ navigation }) => {
-
-  const recentRides = [
-    { id: 1, destination: 'Airport', date: 'May 1, 2024' },
-    { id: 2, destination: 'Downtown', date: 'April 28, 2024' },
-    { id: 3, destination: 'Shopping Mall', date: 'April 25, 2024' },
-    { id: 4, destination: 'Shopping Mall', date: 'April 25, 2024' },
-    { id: 5, destination: 'Shopping Mall', date: 'April 25, 2024' },
-    { id: 6, destination: 'Shopping Mall', date: 'April 25, 2024' },
-  ];
   const [applications, setApplications] = useState([]);
   const [refreshing, setRefreshing] = React.useState(false);
 
@@ -75,76 +14,85 @@ const Notifications = ({ navigation }) => {
     setRefreshing(true);
     setTimeout(() => {
       setRefreshing(false);
-    }, 2000);
+    });
   }, []);
 
   const getApplications = async () => {
-    const enpoint = 'http://192.168.0.119:3000/applications';
+    const enpoint = `${localhost}/applications`;
     const response = await fetch(enpoint);
     const applications = await response.json();
     setApplications(applications);
   }
 
   useEffect(() => {
-    getApplications(); 
+    getApplications();
   }, [refreshing]);
+
+
 
   return (
     <ScrollView contentContainerStyle={styles.container}
-    refreshControl={
-      <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-    }
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }
     >
-      <Text style={styles.title}>Notifications</Text>
-      {applications.map(application => (
-              <TouchableOpacity 
-              key={application.id} 
-              style={styles.recentRideCard}
+     
+      <View style={{ paddingTop:  50, alignItems: 'center', backgroundColor: '#FFDC1C', height: 150, borderBottomStartRadius: 15, borderBottomEndRadius: 15 }}>
+        <Icon name="person-circle" size={40} color="#000" />
+        <Text style={styles.welcomeMessage}>Admin Dashboard</Text>
+
+      </View>
+      <View style={{ alignItems: 'flex-start', padding: 20, paddingTop: 30, backgroundColor: "#fff" }}>
+        <ScrollView>
+          <Text style={styles.notificationsTitle}>Drivers pending requests</Text>
+          {applications.map(application => (
+            <TouchableOpacity
+              key={application.id}
+              style={styles.applicationCard}
               onPress={() => {
-                
-                navigation.navigate('ApplicationDetails', { application })}}
-              >
-                <Text>{application.fullName}</Text>
-                <Text>{application.email}</Text>
-                <Text>{application.phone}</Text>
-              </TouchableOpacity>
-            ))}
+
+                navigation.navigate('ApplicationDetails', { application })
+              }}
+            >
+              <Text>{application.fullName}</Text>
+              <Text>{application.email}</Text>
+              <Text>{application.phone}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+         <TouchableOpacity 
+         onPress={() => {navigation.navigate('LoginScreen')}}
+         style={{position: "absolute", bottom: 20, right: 20}}>
+            <Icon name="log-out" size={30} color="#000" />
+         </TouchableOpacity>
     </ScrollView>
+
   );
-}
+};
+
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 30,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
+
   },
-  title: {
+  welcomeMessage: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    color: '#000',
   },
-  subtitle: {
-    fontSize: 18,
-    marginBottom: 10,
-  },
-  requestItem: {
-    backgroundColor: '#f9f9f9',
-    marginBottom: 10,
-    borderRadius: 8,
-  },
-  buttonGroup: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  recentRidesTitle: {
+ 
+  
+  notificationsTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#FFDC1C',
     marginBottom: 10,
   },
-  recentRideCard: {
+  applicationCard: {
     backgroundColor: '#ffffff',
     padding: 5,
     borderRadius: 8,

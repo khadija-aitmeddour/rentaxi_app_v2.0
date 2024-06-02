@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
-import SquareIconButton from '../components/SquareIconButton'; // Import the SquareIconButton component
+import SquareIconButton from '../../components/SquareIconButton'; // Import the SquareIconButton component
 
 const SignInTypeScreen = ({ navigation }) => {
   const [typeUser, setTypeUser] = useState('');

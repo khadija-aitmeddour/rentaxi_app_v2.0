@@ -1,13 +1,15 @@
 import { View, Text, TouchableOpacity, Modal, StyleSheet, ActivityIndicator, BackHandler } from 'react-native';
 import React, { useState, useEffect, useContext } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { sendPushNotification } from '../hooks/usePushNotifications';
+import { sendPushNotification } from '../../hooks/usePushNotifications';
 import io from 'socket.io-client';
-import { ReservationContext } from '../context/ReservationContext';
-import { UserContext } from '../context/UserContext';
+import { ReservationContext } from '../../context/ReservationContext';
+import { UserContext } from '../../context/UserContext';
+import { device1, device2 } from '../../expoPushTokens';
+import { webSocketServerURL } from '../../localhostConfig';
 
 const PendingRequest = ({ navigation, route }) => {
-    const socket = io('http://192.168.0.119:3001');
+    const socket = io(webSocketServerURL);
 
     const { username, photo, selectedTaxiType, myPosition, destination, distance, price } = route.params;
     const [countdown, setCountdown] = useState(0);
@@ -36,7 +38,7 @@ const PendingRequest = ({ navigation, route }) => {
         await socket.emit('clientRequest', { uid: user.uid, clientId: socket.id });
         console.log('Request sent');
         setReservation({ ...reservation, status: 'pending' });
-        sendPushNotification("ExponentPushToken[VhhgZ8IrAoduMGLjc9NGxQ]", 'Ride Request!', 'A new ride request has been made!', { username, photo, myPosition, destination, distance, price });
+        sendPushNotification(device1, 'Ride Request!', 'A new ride request has been made!', { username, photo, myPosition, destination, distance, price, selectedTaxiType });
 
     };
     socket.on('driverResponse', (response) => {
@@ -94,7 +96,9 @@ const PendingRequest = ({ navigation, route }) => {
     }, []);
 
     const cancelRequest = () => {
-
+           
+        socket.emit('cancelRequest', { clientId: user.uid });
+            
         setLoadVisible(false);
         navigation.navigate('Location');
     };

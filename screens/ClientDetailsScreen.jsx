@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Button, Image,  Linking, TouchableOpacity } from 'react-native';
+import { localhost } from '../localhostConfig';
 
 
 const ClientDetailsScreen = ({ navigation, route }) => {
@@ -11,14 +12,13 @@ const ClientDetailsScreen = ({ navigation, route }) => {
   };
 
   const cancelReservation = () => {
-    // Logic to cancel the reservation goes here
+   
     console.log('Reservation cancelled');
-    // Navigate back to reservations screen
     navigation.navigate('Home');
   };
   useEffect(() => {
   const getClientInfo = async () => {
-    const endpoint = `http://192.168.0.119:3000/users/${uid}`;
+    const endpoint = `${localhost}/users/${uid}`;
     await fetch(endpoint)
       .then(response => response.json())
       .then(data => {
